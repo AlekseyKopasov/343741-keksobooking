@@ -183,18 +183,13 @@ var correctIndentPin = function (coordinateX) {
   return pinIndentX;
 };
 
-var removeAllChilds = function (element) {
-  while (element.lastChild) {
-    element.removeChild(element.lastChild);
-  }
-};
-
 var renderPin = function (templateElement, offer) {
   var element = templateElement.cloneNode(true);
 
   element.style.left = offer.location.x + 'px';
   element.style.top = offer.location.y + 'px';
   element.querySelector('img').src = offer.author.avatar;
+  element.querySelector('img').alt = offer.title;
 
   return element;
 };
@@ -209,29 +204,31 @@ var renderPins = function (templateElement, offers) {
   return fragment;
 };
 
-var createFeaturesList = function (parentElement, offer) {
-  removeAllChilds(parentElement);
+var createFeaturesList = function (parentElement, features) {
+  var fragment = document.createDocumentFragment();
+  parentElement.innerHTML = '';
 
-  offer.forEach(function (featues) {
-    var featuresItem = document.createElement('li');
-    featuresItem.className = 'popup__feature popup__feature--' + featues;
-    featuresElement.appendChild(featuresItem);
+  features.forEach(function (feature) {
+    var element = document.createElement('li');
+    element.className = 'popup__feature popup__feature--' + feature;
+    fragment.appendChild(element);
   });
-  return featuresElement;
+  return parentElement.appendChild(fragment);
 };
 
-var createPhotoList = function (parentElement, offer) {
-  removeAllChilds(parentElement);
+var createPhotoList = function (parentElement, photos) {
+  var fragment = document.createDocumentFragment();
+  parentElement.innerHTML = '';
 
-  offer.forEach(function (photoSrc) {
-    var popupPhotoItem = document.createElement('img');
-    popupPhotoItem.className = 'popup__photo';
-    popupPhotoItem.src = photoSrc;
-    popupPhotoItem.width = 45;
-    popupPhotoItem.height = 40;
-    photoListElement.appendChild(popupPhotoItem);
+  photos.forEach(function (photo) {
+    var element = document.createElement('img');
+    element.className = 'popup__photo';
+    element.src = photo;
+    element.width = 45;
+    element.height = 40;
+    fragment.appendChild(element);
   });
-  return photoListElement;
+  return parentElement.appendChild(fragment); // вернет ul с изображениями
 };
 
 var renderPopup = function (templateElement, data) {
@@ -245,11 +242,9 @@ var renderPopup = function (templateElement, data) {
   element.querySelector('.popup__text--price').textContent = createPriceTranslation(offer.price);
   element.querySelector('.popup__text--time').textContent = createTimeTranslation(offer.checkin, offer.checkout);
   element.querySelector('.popup__text--capacity').textContent = createCapacityTranslation(offer.rooms, offer.guests);
-
   element.querySelector('.popup__type').textContent = TYPES_TRANSLATION_MAP[offer.type];
-
-  element.querySelector('.popup__features').appendChild(createFeaturesList(featuresElement, offer.features));
-  element.querySelector('.popup__photos').appendChild(createPhotoList(photoListElement, offer.photos));
+  createFeaturesList(featuresElement, offer.features);
+  createPhotoList(photoListElement, offer.photos);
 
   return element;
 };
