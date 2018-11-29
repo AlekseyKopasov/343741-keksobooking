@@ -1,4 +1,3 @@
-
 'use strict';
 
 var OFFER_TITLE = [
@@ -20,7 +19,7 @@ var OFFER_FEATURES = [
   'parking',
   'washer',
   'elevator',
-  'conditioner',
+  'conditioner'
 ];
 
 var OFFER_PHOTOS = [
@@ -54,6 +53,9 @@ var OFFER_POSITION_X_MIN = 0;
 var OFFER_POSITION_X_MAX = 1200;
 var OFFER_POSITION_Y_MIN = 130;
 var OFFER_POSITION_Y_MAX = 630;
+
+var POPUP_PHOTO_WIDTH = 45;
+var POPUP_PHOTO_HEIGHT = 40;
 
 var shuffleArray = function (originalArray) {
   var j;
@@ -129,8 +131,8 @@ var generateOffers = function () {
         photos: generateRandomPhotos(OFFER_PHOTOS)
       },
       location: {
-        x: correctIndentPin(x),
-        y: y,
+        x: x,
+        y: y
       }
     });
   }
@@ -161,7 +163,7 @@ var createPriceTranslation = function (price) {
 
 var createCapacityTranslation = function (rooms, guests) {
   return TEPMLATE_CAPACITY
-  .replace('{rooms}', rooms)
+    .replace('{rooms}', rooms)
     .replace('{translationRooms}', translateRooms(rooms))
     .replace('{guests}', guests)
     .replace('{translationGuests}', translateGuests(guests));
@@ -171,16 +173,6 @@ var createTimeTranslation = function (checkin, checkout) {
   return TEMPLATE_TIME
     .replace('{checkin}', checkin)
     .replace('{checkout}', checkout);
-};
-
-var correctIndentPin = function (coordinateX) {
-  var pinIndentX = coordinateX;
-  if (coordinateX <= OFFER_POSITION_X_MIN) {
-    pinIndentX = OFFER_POSITION_X_MIN;
-  } else if (coordinateX >= OFFER_POSITION_X_MAX - 50) {
-    pinIndentX = OFFER_POSITION_X_MAX - pinListElement.offsetWidth;
-  }
-  return pinIndentX;
 };
 
 var renderPin = function (templateElement, offer) {
@@ -204,49 +196,57 @@ var renderPins = function (templateElement, offers) {
   return fragment;
 };
 
-var createFeaturesList = function (parentElement, features) {
+var createPopupFeaturesFragment = function (features) {
   var fragment = document.createDocumentFragment();
-  parentElement.innerHTML = '';
 
   features.forEach(function (feature) {
     var element = document.createElement('li');
     element.className = 'popup__feature popup__feature--' + feature;
     fragment.appendChild(element);
   });
-  return parentElement.appendChild(fragment);
+
+  return fragment;
 };
 
-var createPhotoList = function (parentElement, photos) {
+var createPopupPhotosFragment = function (photos) {
   var fragment = document.createDocumentFragment();
-  parentElement.innerHTML = '';
 
   photos.forEach(function (photo) {
     var element = document.createElement('img');
+
     element.className = 'popup__photo';
     element.src = photo;
-    element.width = 45;
-    element.height = 40;
+    element.width = POPUP_PHOTO_WIDTH;
+    element.height = POPUP_PHOTO_HEIGHT;
+
     fragment.appendChild(element);
   });
-  return parentElement.appendChild(fragment); // вернет ul с изображениями
+
+  return fragment;
 };
 
 var renderPopup = function (templateElement, data) {
-  var element = templateElement.cloneNode(true);
   var offer = data.offer;
+  var popupElement = templateElement.cloneNode(true);
+  var popupPhotosElement = popupElement.querySelector('.popup__photos');
+  var popupFeaturesElement = popupElement.querySelector('.popup__features');
 
-  element.querySelector('.popup__title').textContent = offer.title;
-  element.querySelector('.popup__text--address').textContent = offer.address;
-  element.querySelector('.popup__avatar').src = data.author.avatar;
-  element.querySelector('.popup__description').textContent = offer.description;
-  element.querySelector('.popup__text--price').textContent = createPriceTranslation(offer.price);
-  element.querySelector('.popup__text--time').textContent = createTimeTranslation(offer.checkin, offer.checkout);
-  element.querySelector('.popup__text--capacity').textContent = createCapacityTranslation(offer.rooms, offer.guests);
-  element.querySelector('.popup__type').textContent = TYPES_TRANSLATION_MAP[offer.type];
-  createFeaturesList(featuresElement, offer.features);
-  createPhotoList(photoListElement, offer.photos);
+  popupElement.querySelector('.popup__title').textContent = offer.title;
+  popupElement.querySelector('.popup__text--address').textContent = offer.address;
+  popupElement.querySelector('.popup__avatar').src = data.author.avatar;
+  popupElement.querySelector('.popup__description').textContent = offer.description;
+  popupElement.querySelector('.popup__text--price').textContent = createPriceTranslation(offer.price);
+  popupElement.querySelector('.popup__text--time').textContent = createTimeTranslation(offer.checkin, offer.checkout);
+  popupElement.querySelector('.popup__text--capacity').textContent = createCapacityTranslation(offer.rooms, offer.guests);
+  popupElement.querySelector('.popup__type').textContent = TYPES_TRANSLATION_MAP[offer.type];
 
-  return element;
+  popupPhotosElement.innerHTML = '';
+  popupFeaturesElement.innerHTML = '';
+
+  popupPhotosElement.appendChild(createPopupPhotosFragment(offer.photos));
+  popupFeaturesElement.appendChild(createPopupFeaturesFragment(offer.features));
+
+  return popupElement;
 };
 
 var mapElement = document.querySelector('.map');
@@ -260,14 +260,6 @@ var mapCardTemplateElement = document.querySelector('#card')
     .content
     .querySelector('.map__card');
 
-var featuresElement = document.querySelector('#card')
-    .content
-    .querySelector('.popup__features');
-
-var photoListElement = document.querySelector('#card')
-  .content
-  .querySelector('.popup__photos');
-
 var offers = generateOffers();
 var pinsFragment = renderPins(pinTemplateElement, offers);
 var popupElement = renderPopup(mapCardTemplateElement, offers[0]);
@@ -276,4 +268,3 @@ mapElement.classList.remove('map--faded');
 
 pinListElement.appendChild(pinsFragment);
 mapElement.insertBefore(popupElement, mapFiltersElement);
-
