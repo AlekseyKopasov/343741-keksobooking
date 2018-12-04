@@ -57,6 +57,8 @@ var OFFER_POSITION_Y_MAX = 630;
 var POPUP_PHOTO_WIDTH = 45;
 var POPUP_PHOTO_HEIGHT = 40;
 
+var KEYCODE_ESC = 27;
+
 var shuffleArray = function (originalArray) {
   var j;
   var temp;
@@ -261,10 +263,185 @@ var mapCardTemplateElement = document.querySelector('#card')
     .querySelector('.map__card');
 
 var offers = generateOffers();
-var pinsFragment = renderPins(pinTemplateElement, offers);
-var popupElement = renderPopup(mapCardTemplateElement, offers[0]);
+// var pinsFragment = renderPins(pinTemplateElement, offers); // показывает пины
+// var popupElement = renderPopup(mapCardTemplateElement, offers[0]); // показывает попап
 
-mapElement.classList.remove('map--faded');
 
-pinListElement.appendChild(pinsFragment);
-mapElement.insertBefore(popupElement, mapFiltersElement);
+/* ============================================================== */
+// var formFilterElement = document.querySelector('.map__filters');
+var formAdElement = document.querySelector('.ad-form');
+var addressFieldElement = formAdElement.querySelector('#address');
+var formAdFieldsetElements = formAdElement.querySelectorAll('fieldset');
+var mainPinElement = document.querySelector('.map__pin--main');
+
+var mainPinElementImg = mainPinElement.querySelector('img');
+var PIN_WIDTH = mainPinElementImg.offsetWidth;
+var PIN_HEIGHT = mainPinElementImg.offsetWidth;
+// var PIN_TAIL_CENTER = 22;
+
+var isMapActive = false;
+
+// Активировать страницу при клике на главный Пин
+var onActivatePage = function () {
+  // удалить обработчик события "mouseup"
+  mainPinElement.removeEventListener('mouseup', onActivatePage);
+
+  mapElement.classList.remove('map--faded');
+  formAdElement.classList.remove('ad-form--disabled');
+  var pinsFragment = renderPins(pinTemplateElement, offers);
+  pinListElement.appendChild(pinsFragment);
+
+  Array.prototype.forEach.call(formAdFieldsetElements, function (element) {
+    element.removeAttribute('disabled');
+
+    // Вызвать хендлер: через цикл вешает 'click' на все Пины с коллбеком ОткрытьПопап
+    onPinClick();
+  });
+};
+
+// установить пределы перемещения Пина (pinPositionLimit)
+var pinPositionLimit = {
+  top: OFFER_POSITION_Y_MIN,
+  left: OFFER_POSITION_X_MIN,
+  right: OFFER_POSITION_X_MAX,
+  bottom: OFFER_POSITION_X_MAX
+};
+
+var onActivateMapPin = function (evt) {
+  evt.preventDefault();
+  // Активировать страницу
+  if (!isMapActive) {
+    onActivatePage();
+  }
+  isMapActive = true;
+  // Установить стартовые координаты
+  var pinStartCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  var onPinShift = function (pinShiftCoordsEvt) {
+    pinShiftCoordsEvt.preventDefault();
+
+    var pinShiftCoords = {
+      x: pinStartCoords.x - pinShiftCoordsEvt.clientX,
+      y: pinStartCoords.y - pinShiftCoordsEvt.clientY
+    };
+
+    pinStartCoords = {
+      x: pinShiftCoordsEvt.clientX,
+      y: pinShiftCoordsEvt.clientY
+    };
+
+
+    // Дописать: Пин не должен выходить за границу Карты - ошибка.
+    if ((mainPinElement.offsetTop - pinShiftCoords.x) < pinPositionLimit.top) {
+      mainPinElement.style.top = pinPositionLimit.top + 'px';
+    } else if ((mainPinElement.offsetTop - pinShiftCoords.y) > pinPositionLimit.bottom) {
+      mainPinElement.style.top = pinPositionLimit.bottom + 'px';
+    } else {
+      mainPinElement.style.top = (mainPinElement.offsetTop - pinShiftCoords.y) + 'px';
+    }
+
+    if ((mainPinElement.offsetLeft - pinShiftCoords.x) < pinPositionLimit.left) {
+      mainPinElement.style.left = pinPositionLimit.left + 'px';
+    } else if ((mainPinElement.offsetLeft - pinShiftCoords.x) > pinPositionLimit.right) {
+      mainPinElement.style.left = pinPositionLimit.right + 'px';
+    } else {
+      mainPinElement.style.left = (mainPinElement.offsetLeft - pinShiftCoords.x) + 'px';
+    }
+
+    document.addEventListener('mousemove', insertPinAddress);
+
+  };
+
+  // Отпустить Пин и записать координаты в Инпут
+  var onPinMouseUp = function (mouseUpEvt) {
+    mouseUpEvt.preventDefault();
+    // Добавить обработчик клик и записать координаты в Инпут
+    mainPinElement.addEventListener('click', insertPinAddress);
+    // Удалить обработчики Перемещения и Отпусканиякнопки
+    document.removeEventListener('mousemove', onPinShift);
+    document.removeEventListener('mouseup', onPinMouseUp);
+  };
+
+  document.addEventListener('mousemove', onPinShift);
+  document.addEventListener('mouseup', onPinMouseUp);
+};
+
+mainPinElement.addEventListener('mousedown', onActivateMapPin);
+
+// Получить координаты Пина пользователя
+var getMainCoordinatePin = function () {
+  var pinCoordX = mainPinElement.offsetLeft + PIN_WIDTH / 2;
+  var pinCoordY = mainPinElement.offsetTop + PIN_HEIGHT / 2;
+  var pinCoordinates = pinCoordX + ',' + pinCoordY;
+  return pinCoordinates;
+};
+
+// Вставить координаты Пина пользователя в инпут
+var insertPinAddress = function () {
+  addressFieldElement.setAttribute('value', getMainCoordinatePin());
+  getMainCoordinatePin.readOnly = true;
+};
+
+// Вешает обработчик Клик на Пины с коллбеком ОткрытьПопап
+var onPinClick = function () {
+  var pinListElements = document.querySelectorAll('.map__pin');
+  for (var i = 0; i < pinListElements.length; i++) {
+    pinListElements[i].addEventListener('click', openPopup);
+  }
+};
+
+// Самое сложное. Открыть попап при клике по Пину
+
+/**
+ * Функция делает следующее:
+ * 1. Если Попап уже был открыть -  закрыть его
+ * 2. Вызвать renderPopap();
+ * 3. Закрываться по ESC
+ * 4. Закрываться по крестику
+ *  4.1 Крестику добавить tabIndex=0, если его нет
+ */
+
+var openPopup = function () {
+  if (mapCardTemplateElement !== null) {
+    mapCardTemplateElement.remove();
+  }
+
+  var popupElement = renderPopup(mapCardTemplateElement, offers[0]);
+  mapElement.insertBefore(popupElement, mapFiltersElement);
+
+  var closePopupCross = document.querySelector('.popup__close');
+  closePopupCross.setAttribute('tabIndex', '0');
+  closePopupCross.addEventListener('click', closePopup);
+
+  document.addEventListener('keydown', onPopupCloseEsc);
+};
+
+var onPopupCloseEsc = function (evt) {
+  if (evt.keyCode === KEYCODE_ESC) {
+    closePopup();
+  }
+};
+
+// Функция УдалитьПопап
+// Удаляет Попап
+// Удаляет Обработчик ESC
+var closePopup = function () {
+  document.querySelector('.map__card').remove();
+  document.removeEventListener('keydown', onPopupCloseEsc);
+};
+
+// Блокирую форму до ее активации.
+var disabledForm = function (elements) {
+  Array.prototype.forEach.call(elements, function (element) {
+    element.setAttribute('disabled', '');
+  });
+};
+
+disabledForm(formAdFieldsetElements);
+
+// pinListElement.appendChild(pinsFragment);
+// mapElement.insertBefore(popupElement, mapFiltersElement);
+
