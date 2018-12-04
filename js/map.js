@@ -405,8 +405,9 @@ var onPinClick = function () {
  */
 
 var openPopup = function () {
-  if (mapCardTemplateElement !== null) {
-    mapCardTemplateElement.remove();
+  var currentPopup = document.querySelector('.map__card');
+  if (currentPopup !== null) {
+    currentPopup.remove();
   }
 
   var popupElement = renderPopup(mapCardTemplateElement, offers[0]);
