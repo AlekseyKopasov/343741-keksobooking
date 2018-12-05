@@ -177,8 +177,8 @@ var createTimeTranslation = function (checkin, checkout) {
     .replace('{checkout}', checkout);
 };
 
-var renderPin = function (templateElement, offer) {
-  var element = templateElement.cloneNode(true);
+var createPinElement = function (offer) {
+  var element = templatePinElement.cloneNode(true);
 
   element.style.left = offer.location.x + 'px';
   element.style.top = offer.location.y + 'px';
@@ -188,11 +188,16 @@ var renderPin = function (templateElement, offer) {
   return element;
 };
 
-var renderPins = function (templateElement, offers) {
+var createPins = function () {
   var fragment = document.createDocumentFragment();
 
   offers.forEach(function (offer) {
-    fragment.appendChild(renderPin(templateElement, offer));
+    var element = createPinElement(offer);
+    var clickHandler = createPinClickHandler(offer);
+
+    element.addEventListener('click', clickHandler);
+
+    fragment.appendChild(element);
   });
 
   return fragment;
@@ -227,9 +232,9 @@ var createPopupPhotosFragment = function (photos) {
   return fragment;
 };
 
-var renderPopup = function (templateElement, data) {
+var createPopupElement = function (data) {
   var offer = data.offer;
-  var popupElement = templateElement.cloneNode(true);
+  var popupElement = templatePopupElement.cloneNode(true);
   var popupPhotosElement = popupElement.querySelector('.popup__photos');
   var popupFeaturesElement = popupElement.querySelector('.popup__features');
 
@@ -251,198 +256,133 @@ var renderPopup = function (templateElement, data) {
   return popupElement;
 };
 
-var mapElement = document.querySelector('.map');
-var pinListElement = document.querySelector('.map__pins');
-var pinTemplateElement = document.querySelector('#pin')
-    .content
-    .querySelector('.map__pin');
-
-var mapFiltersElement = document.querySelector('.map__filters-container');
-var mapCardTemplateElement = document.querySelector('#card')
-    .content
-    .querySelector('.map__card');
-
-var offers = generateOffers();
-// var pinsFragment = renderPins(pinTemplateElement, offers); // показывает пины
-// var popupElement = renderPopup(mapCardTemplateElement, offers[0]); // показывает попап
-
-
-/* ============================================================== */
-// var formFilterElement = document.querySelector('.map__filters');
-var formAdElement = document.querySelector('.ad-form');
-var addressFieldElement = formAdElement.querySelector('#address');
-var formAdFieldsetElements = formAdElement.querySelectorAll('fieldset');
-var mainPinElement = document.querySelector('.map__pin--main');
-
-var mainPinElementImg = mainPinElement.querySelector('img');
-var PIN_WIDTH = mainPinElementImg.offsetWidth;
-var PIN_HEIGHT = mainPinElementImg.offsetWidth;
-// var PIN_TAIL_CENTER = 22;
-
-var isMapActive = false;
-
-// Активировать страницу при клике на главный Пин
-var onActivatePage = function () {
-  // удалить обработчик события "mouseup"
-  mainPinElement.removeEventListener('mouseup', onActivatePage);
-
-  mapElement.classList.remove('map--faded');
-  formAdElement.classList.remove('ad-form--disabled');
-  var pinsFragment = renderPins(pinTemplateElement, offers);
-  pinListElement.appendChild(pinsFragment);
-
-  Array.prototype.forEach.call(formAdFieldsetElements, function (element) {
-    element.removeAttribute('disabled');
-
-    // Вызвать хендлер: через цикл вешает 'click' на все Пины с коллбеком ОткрытьПопап
-    onPinClick();
-  });
-};
-
-// установить пределы перемещения Пина (pinPositionLimit)
-var pinPositionLimit = {
-  top: OFFER_POSITION_Y_MIN,
-  left: OFFER_POSITION_X_MIN,
-  right: OFFER_POSITION_X_MAX,
-  bottom: OFFER_POSITION_X_MAX
-};
-
-var onActivateMapPin = function (evt) {
-  evt.preventDefault();
-  // Активировать страницу
-  if (!isMapActive) {
-    onActivatePage();
-  }
-  isMapActive = true;
-  // Установить стартовые координаты
-  var pinStartCoords = {
-    x: evt.clientX,
-    y: evt.clientY
-  };
-
-  var onPinShift = function (pinShiftCoordsEvt) {
-    pinShiftCoordsEvt.preventDefault();
-
-    var pinShiftCoords = {
-      x: pinStartCoords.x - pinShiftCoordsEvt.clientX,
-      y: pinStartCoords.y - pinShiftCoordsEvt.clientY
-    };
-
-    pinStartCoords = {
-      x: pinShiftCoordsEvt.clientX,
-      y: pinShiftCoordsEvt.clientY
-    };
-
-
-    // Дописать: Пин не должен выходить за границу Карты - ошибка.
-    if ((mainPinElement.offsetTop - pinShiftCoords.x) < pinPositionLimit.top) {
-      mainPinElement.style.top = pinPositionLimit.top + 'px';
-    } else if ((mainPinElement.offsetTop - pinShiftCoords.y) > pinPositionLimit.bottom) {
-      mainPinElement.style.top = pinPositionLimit.bottom + 'px';
-    } else {
-      mainPinElement.style.top = (mainPinElement.offsetTop - pinShiftCoords.y) + 'px';
-    }
-
-    if ((mainPinElement.offsetLeft - pinShiftCoords.x) < pinPositionLimit.left) {
-      mainPinElement.style.left = pinPositionLimit.left + 'px';
-    } else if ((mainPinElement.offsetLeft - pinShiftCoords.x) > pinPositionLimit.right) {
-      mainPinElement.style.left = pinPositionLimit.right + 'px';
-    } else {
-      mainPinElement.style.left = (mainPinElement.offsetLeft - pinShiftCoords.x) + 'px';
-    }
-
-    document.addEventListener('mousemove', insertPinAddress);
-
-  };
-
-  // Отпустить Пин и записать координаты в Инпут
-  var onPinMouseUp = function (mouseUpEvt) {
-    mouseUpEvt.preventDefault();
-    // Добавить обработчик клик и записать координаты в Инпут
-    mainPinElement.addEventListener('click', insertPinAddress);
-    // Удалить обработчики Перемещения и Отпусканиякнопки
-    document.removeEventListener('mousemove', onPinShift);
-    document.removeEventListener('mouseup', onPinMouseUp);
-  };
-
-  document.addEventListener('mousemove', onPinShift);
-  document.addEventListener('mouseup', onPinMouseUp);
-};
-
-mainPinElement.addEventListener('mousedown', onActivateMapPin);
-
-// Получить координаты Пина пользователя
-var getMainCoordinatePin = function () {
-  var pinCoordX = mainPinElement.offsetLeft + PIN_WIDTH / 2;
-  var pinCoordY = mainPinElement.offsetTop + PIN_HEIGHT / 2;
-  var pinCoordinates = pinCoordX + ',' + pinCoordY;
-  return pinCoordinates;
-};
-
-// Вставить координаты Пина пользователя в инпут
-var insertPinAddress = function () {
-  addressFieldElement.setAttribute('value', getMainCoordinatePin());
-  getMainCoordinatePin.readOnly = true;
-};
-
-// Вешает обработчик Клик на Пины с коллбеком ОткрытьПопап
-var onPinClick = function () {
-  var pinListElements = document.querySelectorAll('.map__pin');
-  for (var i = 0; i < pinListElements.length; i++) {
-    pinListElements[i].addEventListener('click', openPopup);
-  }
-};
-
-// Самое сложное. Открыть попап при клике по Пину
-
-/**
- * Функция делает следующее:
- * 1. Если Попап уже был открыть -  закрыть его
- * 2. Вызвать renderPopap();
- * 3. Закрываться по ESC
- * 4. Закрываться по крестику
- *  4.1 Крестику добавить tabIndex=0, если его нет
- */
-
-var openPopup = function () {
-  var currentPopup = document.querySelector('.map__card');
-  if (currentPopup !== null) {
-    currentPopup.remove();
-  }
-
-  var popupElement = renderPopup(mapCardTemplateElement, offers[0]);
-  mapElement.insertBefore(popupElement, mapFiltersElement);
-
-  var closePopupCross = document.querySelector('.popup__close');
-  closePopupCross.setAttribute('tabIndex', '0');
-  closePopupCross.addEventListener('click', closePopup);
-
-  document.addEventListener('keydown', onPopupCloseEsc);
-};
-
-var onPopupCloseEsc = function (evt) {
-  if (evt.keyCode === KEYCODE_ESC) {
-    closePopup();
-  }
-};
-
-// Функция УдалитьПопап
-// Удаляет Попап
-// Удаляет Обработчик ESC
-var closePopup = function () {
-  document.querySelector('.map__card').remove();
-  document.removeEventListener('keydown', onPopupCloseEsc);
-};
-
-// Блокирую форму до ее активации.
-var disabledForm = function (elements) {
+var disableElements = function (elements) {
   Array.prototype.forEach.call(elements, function (element) {
     element.setAttribute('disabled', '');
   });
 };
 
-disabledForm(formAdFieldsetElements);
+var enableElements = function (elements) {
+  Array.prototype.forEach.call(elements, function (element) {
+    element.removeAttribute('disabled');
+  });
+};
 
-// pinListElement.appendChild(pinsFragment);
-// mapElement.insertBefore(popupElement, mapFiltersElement);
+var closePopup = function () {
+  document.querySelector('.map__card').removeEventListener('click', onPopupCloseClick);
+  document.querySelector('.map__card').remove();
+  document.removeEventListener('keydown', onDocumentEscKeydown);
+};
 
+var createPinClickHandler = function (offer) {
+  return function () {
+    var currentPopupElement = document.querySelector('.map__card');
+
+    if (currentPopupElement) {
+      currentPopupElement.remove();
+    }
+
+    var popupElement = createPopupElement(offer);
+    var popupCloseElement = popupElement.querySelector('.popup__close');
+
+    popupCloseElement.setAttribute('tabIndex', '0');
+    popupCloseElement.addEventListener('click', onPopupCloseClick);
+
+    mapElement.insertBefore(popupElement, mapFiltersElement);
+
+    document.addEventListener('keydown', onDocumentEscKeydown);
+  };
+};
+
+var onPopupCloseClick = function () {
+  closePopup();
+};
+
+var onDocumentEscKeydown = function (evt) {
+  if (evt.keyCode === KEYCODE_ESC) {
+    closePopup();
+  }
+};
+
+var onMainPinMouseDown = function (mouseDownEvt) {
+  mouseDownEvt.preventDefault();
+
+  var startCoords = {
+    x: mouseDownEvt.clientX,
+    y: mouseDownEvt.clientY
+  };
+
+  var onDocumentMouseMove = function (mouseMoveEvt) {
+    mouseMoveEvt.preventDefault();
+
+    var shiftCoords = {
+      x: startCoords.x - mouseMoveEvt.clientX,
+      y: startCoords.y - mouseMoveEvt.clientY
+    };
+
+    startCoords = {
+      x: mouseMoveEvt.clientX,
+      y: mouseMoveEvt.clientY
+    };
+
+    var pinWidth = mainPinImageElement.offsetWidth;
+    var pinHeigth = mainPinImageElement.offsetWidth;
+
+    var limitXmin = OFFER_POSITION_X_MIN;
+    var limitXmax = OFFER_POSITION_X_MAX - pinWidth;
+    var limitYmin = OFFER_POSITION_Y_MIN - pinHeigth / 2;
+    var limitYmax = OFFER_POSITION_Y_MAX;
+
+    var y = mainPinElement.offsetTop - shiftCoords.y;
+    var x = mainPinElement.offsetLeft - shiftCoords.x;
+
+    mainPinElement.style.top = Math.max(limitYmin, Math.min(y, limitYmax)) + 'px';
+    mainPinElement.style.left = Math.max(limitXmin, Math.min(x, limitXmax)) + 'px';
+  };
+
+  var onMainPinMouseUp = function (mouseUpEvt) {
+    mouseUpEvt.preventDefault();
+
+    fieldAddressElement.setAttribute('value', startCoords.x + ',' + startCoords.y);
+
+    document.removeEventListener('mousemove', onDocumentMouseMove);
+    document.removeEventListener('mouseup', onMainPinMouseUp);
+  };
+
+  document.addEventListener('mousemove', onDocumentMouseMove);
+  document.addEventListener('mouseup', onMainPinMouseUp);
+};
+
+var onMainPinMouseUp = function () {
+  mainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
+
+  mapElement.classList.remove('map--faded');
+  formElement.classList.remove('ad-form--disabled');
+
+  mapPinsElement.appendChild(createPins());
+
+  enableElements(formFieldsetElements);
+  enableElements(formSelectElements);
+};
+
+var mapElement = document.querySelector('.map');
+var mapPinsElement = document.querySelector('.map__pins');
+var mapFiltersElement = document.querySelector('.map__filters-container');
+
+var templatePinElement = document.querySelector('#pin').content.querySelector('.map__pin');
+var templatePopupElement = document.querySelector('#card').content.querySelector('.map__card');
+
+var formElement = document.querySelector('.ad-form');
+var formFieldsetElements = formElement.querySelectorAll('fieldset');
+var formSelectElements = mapFiltersElement.querySelectorAll('select');
+var fieldAddressElement = formElement.querySelector('#address');
+var mainPinElement = document.querySelector('.map__pin--main');
+var mainPinImageElement = mainPinElement.querySelector('img');
+
+var offers = generateOffers();
+
+disableElements(formFieldsetElements);
+disableElements(formSelectElements);
+
+mainPinElement.addEventListener('mouseup', onMainPinMouseUp);
+mainPinElement.addEventListener('mousedown', onMainPinMouseDown);
