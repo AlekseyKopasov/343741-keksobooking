@@ -329,16 +329,11 @@ var onMainPinMouseDown = function (mouseDownEvt) {
     var pinWidth = mainPinImageElement.offsetWidth;
     var pinHeigth = mainPinImageElement.offsetWidth;
 
-    var limitXmin = OFFER_POSITION_X_MIN;
-    var limitXmax = OFFER_POSITION_X_MAX - pinWidth;
-    var limitYmin = OFFER_POSITION_Y_MIN - pinHeigth / 2;
-    var limitYmax = OFFER_POSITION_Y_MAX;
-
     var y = mainPinElement.offsetTop - shiftCoords.y;
     var x = mainPinElement.offsetLeft - shiftCoords.x;
 
-    mainPinElement.style.top = Math.max(limitYmin, Math.min(y, limitYmax)) + 'px';
-    mainPinElement.style.left = Math.max(limitXmin, Math.min(x, limitXmax)) + 'px';
+    mainPinElement.style.top = Math.max((OFFER_POSITION_Y_MIN - pinHeigth / 2), Math.min(y, OFFER_POSITION_Y_MAX)) + 'px';
+    mainPinElement.style.left = Math.max(OFFER_POSITION_X_MIN, Math.min(x, OFFER_POSITION_X_MAX - pinWidth)) + 'px';
   };
 
   var onMainPinMouseUp = function (mouseUpEvt) {
