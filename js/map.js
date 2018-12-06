@@ -256,20 +256,16 @@ var createPopupElement = function (data) {
   return popupElement;
 };
 
-var disableElements = function () {
-  for (var i = 0; i < arguments.length; i++) {
-    Array.prototype.forEach.call(arguments[i], function (element) {
-      element.setAttribute('disabled', '');
-    });
-  }
+var disableElements = function (elements) {
+  Array.prototype.forEach.call(elements, function (element) {
+    element.setAttribute('disabled', '');
+  });
 };
 
-var enableElements = function () {
-  for (var i = 0; i < arguments.length; i++) {
-    Array.prototype.forEach.call(arguments[i], function (element) {
-      element.removeAttribute('disabled');
-    });
-  }
+var enableElements = function (elements) {
+  Array.prototype.forEach.call(elements, function (element) {
+    element.removeAttribute('disabled');
+  });
 };
 
 var closePopup = function () {
@@ -366,7 +362,8 @@ var onMainPinMouseUp = function () {
 
   mapPinsElement.appendChild(createPins());
 
-  enableElements(formFieldsetElements, formSelectElements);
+  enableElements(formFieldsetElements);
+  enableElements(formSelectElements);
 };
 
 var mapElement = document.querySelector('.map');
@@ -385,7 +382,8 @@ var mainPinImageElement = mainPinElement.querySelector('img');
 
 var offers = generateOffers();
 
-disableElements(formFieldsetElements, formSelectElements);
+disableElements(formFieldsetElements);
+disableElements(formSelectElements);
 
 mainPinElement.addEventListener('mouseup', onMainPinMouseUp);
 mainPinElement.addEventListener('mousedown', onMainPinMouseDown);
