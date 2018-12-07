@@ -59,6 +59,20 @@ var POPUP_PHOTO_HEIGHT = 40;
 
 var KEYCODE_ESC = 27;
 
+var GUESTS_IN_ROOMS = {
+  1: ['1'],
+  2: ['1', '2'],
+  3: ['1', '2', '3'],
+  100: ['0']
+};
+
+var TYPE_MIN_PRICE = {
+  bungalo: '0',
+  flat: '1000',
+  house: '5000',
+  palace: '10000'
+};
+
 var shuffleArray = function (originalArray) {
   var j;
   var temp;
@@ -305,6 +319,46 @@ var onDocumentEscKeydown = function (evt) {
   }
 };
 
+var setOptiontCapacity = function (rooms) {
+  selectOptionElements.forEach(function (room) {
+    room.setAttribute('disabled', '');
+  });
+  GUESTS_IN_ROOMS[rooms].forEach(function (room) {
+    selectCapacityElement.querySelector('option' + '[value="' + room + '"]').removeAttribute('disabled');
+    selectCapacityElement.value = room;
+  });
+};
+
+var checkGuestsInRooms = function () {
+  var currentNumberRooms = GUESTS_IN_ROOMS[selectRoomElement.value];
+  selectCapacityElement = parseInt(selectCapacityElement, 10);
+  var warningMessage = currentNumberRooms.indexOf(selectCapacityElement.value === -1) ? 'Количество гостей больше допустимого' : ''; // !!!
+  selectCapacityElement.setCustomValidity(warningMessage);
+};
+
+var onRoomSelectChange = function (evt) {
+  evt.target.setCustomValidity('');
+  setOptiontCapacity(selectRoomElement.value);
+};
+
+var onCapacitySelectChange = function (evt) {
+  evt.target.setCustomValidity('');
+};
+
+var onFormSubmitClick = function () {
+  checkGuestsInRooms();
+};
+
+var onFormFieldCheckValidity = function () {
+  for (var i = 0; i < formInputElements.length; i++) {
+    if (!formInputElements[i].checkValidity()) {
+      formInputElements[i].style.boxShadow = '0 0 1px 1px red';
+    } else {
+      formInputElements[i].style.boxShadow = '';
+    }
+  }
+};
+
 var onMainPinMouseDown = function (mouseDownEvt) {
   mouseDownEvt.preventDefault();
 
@@ -326,20 +380,20 @@ var onMainPinMouseDown = function (mouseDownEvt) {
       y: mouseMoveEvt.clientY
     };
 
-    var pinWidth = mainPinImageElement.offsetWidth;
-    var pinHeigth = mainPinImageElement.offsetWidth;
+    var pinWidth = imageMainPinElement.offsetWidth;
+    var pinHeigth = imageMainPinElement.offsetWidth;
 
-    var y = mainPinElement.offsetTop - shiftCoords.y;
-    var x = mainPinElement.offsetLeft - shiftCoords.x;
+    var y = buttonMainPinElement.offsetTop - shiftCoords.y;
+    var x = buttonMainPinElement.offsetLeft - shiftCoords.x;
 
-    mainPinElement.style.top = Math.max((OFFER_POSITION_Y_MIN - pinHeigth / 2), Math.min(y, OFFER_POSITION_Y_MAX)) + 'px';
-    mainPinElement.style.left = Math.max(OFFER_POSITION_X_MIN, Math.min(x, OFFER_POSITION_X_MAX - pinWidth)) + 'px';
+    buttonMainPinElement.style.top = Math.max((OFFER_POSITION_Y_MIN - pinHeigth / 2), Math.min(y, OFFER_POSITION_Y_MAX)) + 'px';
+    buttonMainPinElement.style.left = Math.max(OFFER_POSITION_X_MIN, Math.min(x, OFFER_POSITION_X_MAX - pinWidth)) + 'px';
   };
 
   var onMainPinMouseUp = function (mouseUpEvt) {
     mouseUpEvt.preventDefault();
 
-    fieldAddressElement.setAttribute('value', startCoords.x + ',' + startCoords.y);
+    inputAddressElement.setAttribute('value', startCoords.x + ',' + startCoords.y);
 
     document.removeEventListener('mousemove', onDocumentMouseMove);
     document.removeEventListener('mouseup', onMainPinMouseUp);
@@ -350,7 +404,7 @@ var onMainPinMouseDown = function (mouseDownEvt) {
 };
 
 var onMainPinMouseUp = function () {
-  mainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
+  buttonMainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
 
   mapElement.classList.remove('map--faded');
   formElement.classList.remove('ad-form--disabled');
@@ -359,6 +413,25 @@ var onMainPinMouseUp = function () {
 
   enableElements(formFieldsetElements);
   enableElements(formSelectElements);
+};
+
+var onChekinChange = function (evt) {
+  inputCheckoutElement.value = evt.target.value;
+};
+
+var onCheckoutChange = function (evt) {
+  inputCheckinElement.value = evt.target.value;
+};
+
+var onTypeMatchesPriceChange = function (evt) {
+  var minPrice = TYPE_MIN_PRICE[evt.target.value];
+  inputPriceElement.min = minPrice;
+  inputPriceElement.placeholder = minPrice.toString();
+};
+
+var onResetFormClick = function (evt) {
+  evt.preventDefault();
+  deactivateForm();
 };
 
 var mapElement = document.querySelector('.map');
@@ -371,14 +444,65 @@ var templatePopupElement = document.querySelector('#card').content.querySelector
 var formElement = document.querySelector('.ad-form');
 var formFieldsetElements = formElement.querySelectorAll('fieldset');
 var formSelectElements = mapFiltersElement.querySelectorAll('select');
-var fieldAddressElement = formElement.querySelector('#address');
-var mainPinElement = document.querySelector('.map__pin--main');
-var mainPinImageElement = mainPinElement.querySelector('img');
+var formInputElements = formElement.querySelectorAll('input');
+
+var inputBuildingElement = formElement.querySelector('#type');
+var inputPriceElement = formElement.querySelector('#price');
+var inputCheckinElement = formElement.querySelector('#timein');
+var inputCheckoutElement = formElement.querySelector('#timeout');
+var inputAddressElement = formElement.querySelector('#address');
+var selectCapacityElement = formElement.querySelector('#capacity');
+var selectRoomElement = formElement.querySelector('#room_number');
+var selectOptionElements = selectCapacityElement.querySelectorAll('option');
+
+var buttonSubmitElement = formElement.querySelector('.ad-form__submit');
+var buttonResetElement = formElement.querySelector('.ad-form__reset');
+var buttonMainPinElement = document.querySelector('.map__pin--main');
+
+var imageMainPinElement = buttonMainPinElement.querySelector('img');
 
 var offers = generateOffers();
 
 disableElements(formFieldsetElements);
 disableElements(formSelectElements);
 
-mainPinElement.addEventListener('mouseup', onMainPinMouseUp);
-mainPinElement.addEventListener('mousedown', onMainPinMouseDown);
+buttonMainPinElement.addEventListener('mouseup', onMainPinMouseUp);
+buttonMainPinElement.addEventListener('mousedown', onMainPinMouseDown);
+
+var addListenerToForm = function () {
+  inputCheckinElement.addEventListener('change', onChekinChange);
+  inputCheckoutElement.addEventListener('change', onCheckoutChange);
+  inputBuildingElement.addEventListener('change', onTypeMatchesPriceChange);
+  selectRoomElement.addEventListener('change', onRoomSelectChange);
+  selectCapacityElement.addEventListener('change', onCapacitySelectChange);
+  buttonSubmitElement.addEventListener('click', onFormFieldCheckValidity);
+  buttonSubmitElement.addEventListener('click', onFormSubmitClick);
+
+  buttonResetElement.addEventListener('click', onResetFormClick);
+};
+
+var removeListenerToForm = function () {
+  inputCheckinElement.removeEventListener('change', onChekinChange);
+  inputCheckoutElement.removeEventListener('change', onCheckoutChange);
+  selectRoomElement.removeEventListener('change', onRoomSelectChange);
+  selectCapacityElement.removeEventListener('change', onCapacitySelectChange);
+  buttonSubmitElement.removeEventListener('click', onFormFieldCheckValidity);
+  buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
+  inputBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
+};
+
+var deactivateForm = function () {
+  formElement.reset();
+  removeListenerToForm();
+};
+
+var activateForm = function () {
+  addListenerToForm();
+};
+
+activateForm();
+
+/**
+ * Выполнить пункты  ТЗ
+ * 1.5 - 1.6
+ */
