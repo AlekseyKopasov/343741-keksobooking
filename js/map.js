@@ -73,6 +73,13 @@ var TYPE_MIN_PRICE = {
   palace: '10000'
 };
 
+var ERROR_FORM_MESSAGE = 'Количество гостей больше допустимого';
+
+var MAIN_PIN_COORDS_DEFAULT = {
+  x: 570,
+  y: 375
+};
+
 var shuffleArray = function (originalArray) {
   var j;
   var temp;
@@ -217,6 +224,13 @@ var createPins = function () {
   return fragment;
 };
 
+var removePins = function () {
+  var allSimplePins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+  Array.prototype.forEach.call(allSimplePins, function (pin) {
+    pin.remove();
+  });
+};
+
 var createPopupFeaturesFragment = function (features) {
   var fragment = document.createDocumentFragment();
 
@@ -284,9 +298,11 @@ var enableElements = function (elements) {
 
 var closePopup = function () {
   var currentPopupElement = document.querySelector('.map__card');
-  currentPopupElement.removeEventListener('click', onPopupCloseClick);
-  currentPopupElement.remove();
-  document.removeEventListener('keydown', onDocumentEscKeydown);
+  if (currentPopupElement) {
+    currentPopupElement.removeEventListener('click', onPopupCloseClick);
+    currentPopupElement.remove();
+    document.removeEventListener('keydown', onDocumentEscKeydown);
+  }
 };
 
 var createPinClickHandler = function (offer) {
@@ -309,16 +325,6 @@ var createPinClickHandler = function (offer) {
   };
 };
 
-var onPopupCloseClick = function () {
-  closePopup();
-};
-
-var onDocumentEscKeydown = function (evt) {
-  if (evt.keyCode === KEYCODE_ESC) {
-    closePopup();
-  }
-};
-
 var setOptiontCapacity = function (rooms) {
   selectOptionElements.forEach(function (room) {
     room.setAttribute('disabled', '');
@@ -331,9 +337,20 @@ var setOptiontCapacity = function (rooms) {
 
 var checkGuestsInRooms = function () {
   var currentNumberRooms = GUESTS_IN_ROOMS[selectRoomElement.value];
-  selectCapacityElement = parseInt(selectCapacityElement, 10);
-  var warningMessage = currentNumberRooms.indexOf(selectCapacityElement.value === -1) ? 'Количество гостей больше допустимого' : ''; // !!!
+  var capacityValue = parseInt(selectCapacityElement.value, 10);
+  var warningMessage = currentNumberRooms.indexOf(capacityValue === -1) ? '' : ERROR_FORM_MESSAGE;
+
   selectCapacityElement.setCustomValidity(warningMessage);
+};
+
+var onPopupCloseClick = function () {
+  closePopup();
+};
+
+var onDocumentEscKeydown = function (evt) {
+  if (evt.keyCode === KEYCODE_ESC) {
+    closePopup();
+  }
 };
 
 var onRoomSelectChange = function (evt) {
@@ -347,16 +364,14 @@ var onCapacitySelectChange = function (evt) {
 
 var onFormSubmitClick = function () {
   checkGuestsInRooms();
-};
-
-var onFormFieldCheckValidity = function () {
-  for (var i = 0; i < formInputElements.length; i++) {
-    if (!formInputElements[i].checkValidity()) {
-      formInputElements[i].style.boxShadow = '0 0 1px 1px red';
+  Array.prototype.forEach.call(formInputElements, function (element) {
+    if (!element.checkValidity()) {
+      element.style.boxShadow = '0 0 3px 3px red';
     } else {
-      formInputElements[i].style.boxShadow = '';
+      element.style.boxShadow = '';
     }
-  }
+  });
+  deactivateForm();
 };
 
 var onMainPinMouseDown = function (mouseDownEvt) {
@@ -392,9 +407,7 @@ var onMainPinMouseDown = function (mouseDownEvt) {
 
   var onMainPinMouseUp = function (mouseUpEvt) {
     mouseUpEvt.preventDefault();
-
     inputAddressElement.setAttribute('value', startCoords.x + ',' + startCoords.y);
-
     document.removeEventListener('mousemove', onDocumentMouseMove);
     document.removeEventListener('mouseup', onMainPinMouseUp);
   };
@@ -405,7 +418,6 @@ var onMainPinMouseDown = function (mouseDownEvt) {
 
 var onMainPinMouseUp = function () {
   buttonMainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
-
   mapElement.classList.remove('map--faded');
   formElement.classList.remove('ad-form--disabled');
 
@@ -431,7 +443,14 @@ var onTypeMatchesPriceChange = function (evt) {
 
 var onResetFormClick = function (evt) {
   evt.preventDefault();
-  deactivateForm();
+  formElement.reset();
+  closePopup();
+  removePins();
+
+  buttonMainPinElement.style.top = MAIN_PIN_COORDS_DEFAULT.y + 'px';
+  buttonMainPinElement.style.left = MAIN_PIN_COORDS_DEFAULT.x + 'px';
+
+  inputAddressElement.setAttribute('value', buttonMainPinElement.offsetTop + ',' + buttonMainPinElement.offsetLeft);
 };
 
 var mapElement = document.querySelector('.map');
@@ -466,43 +485,32 @@ var offers = generateOffers();
 disableElements(formFieldsetElements);
 disableElements(formSelectElements);
 
-buttonMainPinElement.addEventListener('mouseup', onMainPinMouseUp);
-buttonMainPinElement.addEventListener('mousedown', onMainPinMouseDown);
+var deactivateForm = function () {
+  buttonMainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
+  buttonMainPinElement.removeEventListener('mousedown', onMainPinMouseDown);
 
-var addListenerToForm = function () {
+  inputCheckinElement.removeEventListener('change', onChekinChange);
+  inputCheckoutElement.removeEventListener('change', onCheckoutChange);
+  inputBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
+  selectRoomElement.removeEventListener('change', onRoomSelectChange);
+  selectCapacityElement.removeEventListener('change', onCapacitySelectChange);
+  buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
+
+  buttonResetElement.removeEventListener('click', onResetFormClick);
+};
+
+var activateForm = function () {
+  buttonMainPinElement.addEventListener('mouseup', onMainPinMouseUp);
+  buttonMainPinElement.addEventListener('mousedown', onMainPinMouseDown);
+
   inputCheckinElement.addEventListener('change', onChekinChange);
   inputCheckoutElement.addEventListener('change', onCheckoutChange);
   inputBuildingElement.addEventListener('change', onTypeMatchesPriceChange);
   selectRoomElement.addEventListener('change', onRoomSelectChange);
   selectCapacityElement.addEventListener('change', onCapacitySelectChange);
-  buttonSubmitElement.addEventListener('click', onFormFieldCheckValidity);
   buttonSubmitElement.addEventListener('click', onFormSubmitClick);
 
   buttonResetElement.addEventListener('click', onResetFormClick);
 };
 
-var removeListenerToForm = function () {
-  inputCheckinElement.removeEventListener('change', onChekinChange);
-  inputCheckoutElement.removeEventListener('change', onCheckoutChange);
-  selectRoomElement.removeEventListener('change', onRoomSelectChange);
-  selectCapacityElement.removeEventListener('change', onCapacitySelectChange);
-  buttonSubmitElement.removeEventListener('click', onFormFieldCheckValidity);
-  buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
-  inputBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
-};
-
-var deactivateForm = function () {
-  formElement.reset();
-  removeListenerToForm();
-};
-
-var activateForm = function () {
-  addListenerToForm();
-};
-
 activateForm();
-
-/**
- * Выполнить пункты  ТЗ
- * 1.5 - 1.6
- */
