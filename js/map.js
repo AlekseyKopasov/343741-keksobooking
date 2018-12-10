@@ -325,15 +325,12 @@ var createPinClickHandler = function (offer) {
   };
 };
 
-var setOptionsCapacity = function (rooms) {
-  selectOptionElements.forEach(function (room) {
-    room.setAttribute('disabled', '');
-  });
-
-  Array.prototype.forEach.call(selectOptionElements, function (element) {
+var setOptionsCapacity = function (rooms, selectOptions) {
+  disableElements(selectOptions);
+  Array.prototype.forEach.call(selectOptions, function (element) {
     for (var i = 0; i < GUESTS_IN_ROOMS[rooms].length; i++) {
       if (GUESTS_IN_ROOMS[rooms][i] === element.value) {
-        element.removeAttribute('disabled');
+        enableElements(selectOptions);
       }
     }
     selectCapacityElement.value = rooms;
@@ -360,7 +357,7 @@ var onDocumentEscKeydown = function (evt) {
 
 var onRoomSelectChange = function (evt) {
   evt.target.setCustomValidity('');
-  setOptionsCapacity(selectRoomElement.value);
+  setOptionsCapacity(selectRoomElement.value, selectOptionElements);
 };
 
 var onCapacitySelectChange = function (evt) {
