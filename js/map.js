@@ -63,7 +63,7 @@ var GUESTS_IN_ROOMS = {
   1: ['1'],
   2: ['1', '2'],
   3: ['1', '2', '3'],
-  100: ['0']
+  100: ['не для гостей']
 };
 
 var TYPE_MIN_PRICE = {
@@ -225,8 +225,8 @@ var createPins = function () {
 };
 
 var removePins = function () {
-  var allSimplePins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
-  Array.prototype.forEach.call(allSimplePins, function (pin) {
+  var allSimplePinsElements = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+  Array.prototype.forEach.call(allSimplePinsElements, function (pin) {
     pin.remove();
   });
 };
@@ -325,13 +325,18 @@ var createPinClickHandler = function (offer) {
   };
 };
 
-var setOptiontCapacity = function (rooms) {
+var setOptionsCapacity = function (rooms) {
   selectOptionElements.forEach(function (room) {
     room.setAttribute('disabled', '');
   });
-  GUESTS_IN_ROOMS[rooms].forEach(function (room) {
-    selectCapacityElement.querySelector('option' + '[value="' + room + '"]').removeAttribute('disabled');
-    selectCapacityElement.value = room;
+
+  Array.prototype.forEach.call(selectOptionElements, function (element) {
+    for (var i = 0; i < GUESTS_IN_ROOMS[rooms].length; i++) {
+      if (GUESTS_IN_ROOMS[rooms][i] === element.value) {
+        element.removeAttribute('disabled');
+      }
+    }
+    selectCapacityElement.value = rooms;
   });
 };
 
@@ -355,7 +360,7 @@ var onDocumentEscKeydown = function (evt) {
 
 var onRoomSelectChange = function (evt) {
   evt.target.setCustomValidity('');
-  setOptiontCapacity(selectRoomElement.value);
+  setOptionsCapacity(selectRoomElement.value);
 };
 
 var onCapacitySelectChange = function (evt) {
@@ -365,11 +370,7 @@ var onCapacitySelectChange = function (evt) {
 var onFormSubmitClick = function () {
   checkGuestsInRooms();
   Array.prototype.forEach.call(formInputElements, function (element) {
-    if (!element.checkValidity()) {
-      element.style.boxShadow = '0 0 3px 3px red';
-    } else {
-      element.style.boxShadow = '';
-    }
+    element.style.boxShadow = !element.checkValidity() ? '0 0 3px 3px red' : '';
   });
   deactivateForm();
 };
