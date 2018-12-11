@@ -63,7 +63,7 @@ var GUESTS_IN_ROOMS = {
   1: ['1'],
   2: ['1', '2'],
   3: ['1', '2', '3'],
-  100: ['не для гостей']
+  100: ['0']
 };
 
 var TYPE_MIN_PRICE = {
@@ -325,15 +325,13 @@ var createPinClickHandler = function (offer) {
   };
 };
 
-var setOptionsCapacity = function (rooms, selectOptions) {
-  disableElements(selectOptions);
-  Array.prototype.forEach.call(selectOptions, function (element) {
-    for (var i = 0; i < GUESTS_IN_ROOMS[rooms].length; i++) {
-      if (GUESTS_IN_ROOMS[rooms][i] === element.value) {
-        enableElements(selectOptions);
-      }
-    }
-    selectCapacityElement.value = rooms;
+var setOptionsCapacity = function (rooms, selectElement) {
+  var selectOptionElements = selectElement.querySelectorAll('option');
+  disableElements(selectOptionElements);
+
+  GUESTS_IN_ROOMS[rooms].forEach(function (room) {
+    selectElement.querySelector('option' + '[value="' + room + '"]').removeAttribute('disabled');
+    selectElement.value = room;
   });
 };
 
@@ -357,7 +355,7 @@ var onDocumentEscKeydown = function (evt) {
 
 var onRoomSelectChange = function (evt) {
   evt.target.setCustomValidity('');
-  setOptionsCapacity(selectRoomElement.value, selectOptionElements);
+  setOptionsCapacity(selectRoomElement.value, selectCapacityElement);
 };
 
 var onCapacitySelectChange = function (evt) {
@@ -470,7 +468,6 @@ var inputCheckoutElement = formElement.querySelector('#timeout');
 var inputAddressElement = formElement.querySelector('#address');
 var selectCapacityElement = formElement.querySelector('#capacity');
 var selectRoomElement = formElement.querySelector('#room_number');
-var selectOptionElements = selectCapacityElement.querySelectorAll('option');
 
 var buttonSubmitElement = formElement.querySelector('.ad-form__submit');
 var buttonResetElement = formElement.querySelector('.ad-form__reset');
