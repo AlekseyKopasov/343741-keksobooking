@@ -212,9 +212,11 @@ var createPinElement = function (offer) {
 var createPins = function () {
   var fragment = document.createDocumentFragment();
 
-  offers.forEach(function (offer) {
+  offers.forEach(function (offer, index) {
     var element = createPinElement(offer);
     var clickHandler = createPinClickHandler(offer);
+
+    mapPinsClickHandlers[index] = clickHandler;
 
     element.addEventListener('click', clickHandler);
 
@@ -227,10 +229,12 @@ var createPins = function () {
 var removePins = function () {
   var pinsElements = document.querySelectorAll('.map__pin:not(.map__pin--main)');
 
-  Array.prototype.forEach.call(pinsElements, function (pin) {
-    pin.addEventListener('click', onPinRemoveClick);
-    pin.remove();
+  Array.prototype.forEach.call(pinsElements, function (pinElement, index) {
+    pinElement.removeEventListener('click', mapPinsClickHandlers[index]);
+    pinElement.remove();
   });
+
+  mapPinsClickHandlers = {};
 };
 
 var createPopupFeaturesFragment = function (features) {
@@ -403,15 +407,15 @@ var onMainPinMouseDown = function (mouseDownEvt) {
     buttonMainPinElement.style.left = Math.max(OFFER_POSITION_X_MIN, Math.min(x, OFFER_POSITION_X_MAX - pinWidth)) + 'px';
   };
 
-  var onMainPinMouseUp = function (mouseUpEvt) {
+  var onDocumentMouseUp = function (mouseUpEvt) {
     mouseUpEvt.preventDefault();
     inputAddressElement.setAttribute('value', startCoords.x + ',' + startCoords.y);
     document.removeEventListener('mousemove', onDocumentMouseMove);
-    document.removeEventListener('mouseup', onMainPinMouseUp);
+    document.removeEventListener('mouseup', onDocumentMouseUp);
   };
 
   document.addEventListener('mousemove', onDocumentMouseMove);
-  document.addEventListener('mouseup', onMainPinMouseUp);
+  document.addEventListener('mouseup', onDocumentMouseUp);
 };
 
 var onMainPinMouseUp = function () {
@@ -421,8 +425,7 @@ var onMainPinMouseUp = function () {
 
   mapPinsElement.appendChild(createPins());
 
-  enableElements(formFieldsetElements);
-  enableElements(formSelectElements);
+  activateForm();
 };
 
 var onChekinChange = function (evt) {
@@ -451,13 +454,36 @@ var onResetFormClick = function (evt) {
   inputAddressElement.setAttribute('value', buttonMainPinElement.offsetTop + ',' + buttonMainPinElement.offsetLeft);
 };
 
-var onPinRemoveClick = function (evt) {
-  evt.target.removeEventListener('click', onPinRemoveClick);
+var deactivateForm = function () {
+  disableElements(formFieldsetElements);
+  disableElements(formSelectElements);
+
+  inputCheckinElement.removeEventListener('change', onChekinChange);
+  inputCheckoutElement.removeEventListener('change', onCheckoutChange);
+  inputBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
+  selectRoomElement.removeEventListener('change', onRoomSelectChange);
+  selectCapacityElement.removeEventListener('change', onCapacitySelectChange);
+  buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
+  buttonResetElement.removeEventListener('click', onResetFormClick);
+};
+
+var activateForm = function () {
+  enableElements(formFieldsetElements);
+  enableElements(formSelectElements);
+
+  inputCheckinElement.addEventListener('change', onChekinChange);
+  inputCheckoutElement.addEventListener('change', onCheckoutChange);
+  inputBuildingElement.addEventListener('change', onTypeMatchesPriceChange);
+  selectRoomElement.addEventListener('change', onRoomSelectChange);
+  selectCapacityElement.addEventListener('change', onCapacitySelectChange);
+  buttonSubmitElement.addEventListener('click', onFormSubmitClick);
+  buttonResetElement.addEventListener('click', onResetFormClick);
 };
 
 var mapElement = document.querySelector('.map');
-var mapPinsElement = document.querySelector('.map__pins');
 var mapFiltersElement = document.querySelector('.map__filters-container');
+var mapPinsElement = document.querySelector('.map__pins');
+var mapPinsClickHandlers = {};
 
 var templatePinElement = document.querySelector('#pin').content.querySelector('.map__pin');
 var templatePopupElement = document.querySelector('#card').content.querySelector('.map__card');
@@ -486,32 +512,5 @@ var offers = generateOffers();
 disableElements(formFieldsetElements);
 disableElements(formSelectElements);
 
-var deactivateForm = function () {
-  buttonMainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
-  buttonMainPinElement.removeEventListener('mousedown', onMainPinMouseDown);
-
-  inputCheckinElement.removeEventListener('change', onChekinChange);
-  inputCheckoutElement.removeEventListener('change', onCheckoutChange);
-  inputBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
-  selectRoomElement.removeEventListener('change', onRoomSelectChange);
-  selectCapacityElement.removeEventListener('change', onCapacitySelectChange);
-  buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
-
-  buttonResetElement.removeEventListener('click', onResetFormClick);
-};
-
-var activateForm = function () {
-  buttonMainPinElement.addEventListener('mouseup', onMainPinMouseUp);
-  buttonMainPinElement.addEventListener('mousedown', onMainPinMouseDown);
-
-  inputCheckinElement.addEventListener('change', onChekinChange);
-  inputCheckoutElement.addEventListener('change', onCheckoutChange);
-  inputBuildingElement.addEventListener('change', onTypeMatchesPriceChange);
-  selectRoomElement.addEventListener('change', onRoomSelectChange);
-  selectCapacityElement.addEventListener('change', onCapacitySelectChange);
-  buttonSubmitElement.addEventListener('click', onFormSubmitClick);
-
-  buttonResetElement.addEventListener('click', onResetFormClick);
-};
-
-activateForm();
+buttonMainPinElement.addEventListener('mouseup', onMainPinMouseUp);
+buttonMainPinElement.addEventListener('mousedown', onMainPinMouseDown);
