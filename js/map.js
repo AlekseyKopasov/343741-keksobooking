@@ -225,8 +225,10 @@ var createPins = function () {
 };
 
 var removePins = function () {
-  var allSimplePinsElements = document.querySelectorAll('.map__pin:not(.map__pin--main)');
-  Array.prototype.forEach.call(allSimplePinsElements, function (pin) {
+  var pinsElements = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+  Array.prototype.forEach.call(pinsElements, function (pin) {
+    pin.addEventListener('click', onPinRemoveClick);
     pin.remove();
   });
 };
@@ -325,13 +327,13 @@ var createPinClickHandler = function (offer) {
   };
 };
 
-var setOptionsCapacity = function (rooms, selectElement) {
-  var selectOptionElements = selectElement.querySelectorAll('option');
+var setOptionsCapacity = function (rooms) {
+  var selectOptionElements = selectCapacityElement.querySelectorAll('option');
   disableElements(selectOptionElements);
 
   GUESTS_IN_ROOMS[rooms].forEach(function (room) {
-    selectElement.querySelector('option' + '[value="' + room + '"]').removeAttribute('disabled');
-    selectElement.value = room;
+    selectCapacityElement.querySelector('option' + '[value="' + room + '"]').removeAttribute('disabled');
+    selectCapacityElement.value = room;
   });
 };
 
@@ -355,7 +357,7 @@ var onDocumentEscKeydown = function (evt) {
 
 var onRoomSelectChange = function (evt) {
   evt.target.setCustomValidity('');
-  setOptionsCapacity(selectRoomElement.value, selectCapacityElement);
+  setOptionsCapacity(evt.target.value);
 };
 
 var onCapacitySelectChange = function (evt) {
@@ -397,7 +399,7 @@ var onMainPinMouseDown = function (mouseDownEvt) {
     var y = buttonMainPinElement.offsetTop - shiftCoords.y;
     var x = buttonMainPinElement.offsetLeft - shiftCoords.x;
 
-    buttonMainPinElement.style.top = Math.max((OFFER_POSITION_Y_MIN - pinHeigth / 2), Math.min(y, OFFER_POSITION_Y_MAX)) + 'px';
+    buttonMainPinElement.style.top = Math.max(OFFER_POSITION_Y_MIN - pinHeigth / 2, Math.min(y, OFFER_POSITION_Y_MAX)) + 'px';
     buttonMainPinElement.style.left = Math.max(OFFER_POSITION_X_MIN, Math.min(x, OFFER_POSITION_X_MAX - pinWidth)) + 'px';
   };
 
@@ -447,6 +449,10 @@ var onResetFormClick = function (evt) {
   buttonMainPinElement.style.left = MAIN_PIN_COORDS_DEFAULT.x + 'px';
 
   inputAddressElement.setAttribute('value', buttonMainPinElement.offsetTop + ',' + buttonMainPinElement.offsetLeft);
+};
+
+var onPinRemoveClick = function (evt) {
+  evt.target.removeEventListener('click', onPinRemoveClick);
 };
 
 var mapElement = document.querySelector('.map');
