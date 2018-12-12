@@ -59,7 +59,7 @@ var POPUP_PHOTO_HEIGHT = 40;
 
 var KEYCODE_ESC = 27;
 
-var GUESTS_IN_ROOMS = {
+var VALIDATION_CAPACITY = {
   1: ['1'],
   2: ['1', '2'],
   3: ['1', '2', '3'],
@@ -331,18 +331,8 @@ var createPinClickHandler = function (offer) {
   };
 };
 
-var setOptionsCapacity = function (rooms) {
-  var selectOptionElements = selectCapacityElement.querySelectorAll('option');
-  disableElements(selectOptionElements);
-
-  GUESTS_IN_ROOMS[rooms].forEach(function (room) {
-    selectCapacityElement.querySelector('option' + '[value="' + room + '"]').removeAttribute('disabled');
-    selectCapacityElement.value = room;
-  });
-};
-
 var checkGuestsInRooms = function () {
-  var currentNumberRooms = GUESTS_IN_ROOMS[selectRoomElement.value];
+  var currentNumberRooms = VALIDATION_CAPACITY[selectRoomElement.value];
   var capacityValue = parseInt(selectCapacityElement.value, 10);
   var warningMessage = currentNumberRooms.indexOf(capacityValue === -1) ? '' : ERROR_FORM_MESSAGE;
 
@@ -360,8 +350,18 @@ var onDocumentEscKeydown = function (evt) {
 };
 
 var onRoomSelectChange = function (evt) {
+  var roomsValue = evt.target.value;
+  var optionElements = selectCapacityElement.querySelectorAll('option');
+
   evt.target.setCustomValidity('');
-  setOptionsCapacity(evt.target.value);
+
+  Array.prototype.forEach.call(optionElements, function (optionElement) {
+    if (VALIDATION_CAPACITY[roomsValue].indexOf(optionElement.value) !== -1) {
+      optionElement.setAttribute('disabled', 'disabled');
+    } else {
+      optionElement.removeAttribute('disabled');
+    }
+  });
 };
 
 var onCapacitySelectChange = function (evt) {
@@ -373,8 +373,8 @@ var onFormSubmitClick = function () {
   Array.prototype.forEach.call(formInputElements, function (element) {
     element.style.boxShadow = !element.checkValidity() ? '0 0 3px 3px red' : '';
   });
-  deactivateForm();
 };
+
 
 var onMainPinMouseDown = function (mouseDownEvt) {
   mouseDownEvt.preventDefault();
@@ -511,6 +511,8 @@ var offers = generateOffers();
 
 disableElements(formFieldsetElements);
 disableElements(formSelectElements);
+
+deactivateForm();
 
 buttonMainPinElement.addEventListener('mouseup', onMainPinMouseUp);
 buttonMainPinElement.addEventListener('mousedown', onMainPinMouseDown);
