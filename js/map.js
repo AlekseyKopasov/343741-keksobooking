@@ -356,7 +356,7 @@ var onRoomSelectChange = function (evt) {
   evt.target.setCustomValidity('');
 
   Array.prototype.forEach.call(optionElements, function (optionElement) {
-    if (VALIDATION_CAPACITY[roomsValue].indexOf(optionElement.value) !== -1) {
+    if (VALIDATION_CAPACITY[roomsValue].indexOf(optionElement.value) === -1) {
       optionElement.setAttribute('disabled', 'disabled');
     } else {
       optionElement.removeAttribute('disabled');
@@ -442,6 +442,14 @@ var onTypeMatchesPriceChange = function (evt) {
   inputPriceElement.placeholder = minPrice.toString();
 };
 
+var onTextFieldInvalid = function () {
+  if (inputTitleElement.validity.tooShort) {
+    inputTitleElement.setCustomValidity('');
+  } else if (inputTitleElement.validity.valueMissing) {
+    inputTitleElement.setCustomValidity('');
+  }
+};
+
 var onResetFormClick = function (evt) {
   evt.preventDefault();
   formElement.reset();
@@ -461,6 +469,7 @@ var deactivateForm = function () {
   inputCheckinElement.removeEventListener('change', onChekinChange);
   inputCheckoutElement.removeEventListener('change', onCheckoutChange);
   inputBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
+  inputTitleElement.addEventListener('invalid', onTextFieldInvalid);
   selectRoomElement.removeEventListener('change', onRoomSelectChange);
   selectCapacityElement.removeEventListener('change', onCapacitySelectChange);
   buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
@@ -474,6 +483,7 @@ var activateForm = function () {
   inputCheckinElement.addEventListener('change', onChekinChange);
   inputCheckoutElement.addEventListener('change', onCheckoutChange);
   inputBuildingElement.addEventListener('change', onTypeMatchesPriceChange);
+  inputTitleElement.addEventListener('invalid', onTextFieldInvalid);
   selectRoomElement.addEventListener('change', onRoomSelectChange);
   selectCapacityElement.addEventListener('change', onCapacitySelectChange);
   buttonSubmitElement.addEventListener('click', onFormSubmitClick);
@@ -493,6 +503,7 @@ var formFieldsetElements = formElement.querySelectorAll('fieldset');
 var formSelectElements = mapFiltersElement.querySelectorAll('select');
 var formInputElements = formElement.querySelectorAll('input');
 
+var inputTitleElement = formElement.querySelector('#title');
 var inputBuildingElement = formElement.querySelector('#type');
 var inputPriceElement = formElement.querySelector('#price');
 var inputCheckinElement = formElement.querySelector('#timein');
