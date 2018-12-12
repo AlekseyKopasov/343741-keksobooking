@@ -454,18 +454,18 @@ var onResetFormClick = function (evt) {
   inputAddressElement.setAttribute('value', buttonMainPinElement.offsetTop + ',' + buttonMainPinElement.offsetLeft);
 };
 
-// var deactivateForm = function () {
-//   disableElements(formFieldsetElements);
-//   disableElements(formSelectElements);
+var deactivateForm = function () {
+  disableElements(formFieldsetElements);
+  disableElements(formSelectElements);
 
-//   inputCheckinElement.removeEventListener('change', onChekinChange);
-//   inputCheckoutElement.removeEventListener('change', onCheckoutChange);
-//   inputBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
-//   selectRoomElement.removeEventListener('change', onRoomSelectChange);
-//   selectCapacityElement.removeEventListener('change', onCapacitySelectChange);
-//   buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
-//   buttonResetElement.removeEventListener('click', onResetFormClick);
-// };
+  inputCheckinElement.removeEventListener('change', onChekinChange);
+  inputCheckoutElement.removeEventListener('change', onCheckoutChange);
+  inputBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
+  selectRoomElement.removeEventListener('change', onRoomSelectChange);
+  selectCapacityElement.removeEventListener('change', onCapacitySelectChange);
+  buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
+  buttonResetElement.removeEventListener('click', onResetFormClick);
+};
 
 var activateForm = function () {
   enableElements(formFieldsetElements);
@@ -511,6 +511,8 @@ var offers = generateOffers();
 
 disableElements(formFieldsetElements);
 disableElements(formSelectElements);
+
+deactivateForm();
 
 buttonMainPinElement.addEventListener('mouseup', onMainPinMouseUp);
 buttonMainPinElement.addEventListener('mousedown', onMainPinMouseDown);
