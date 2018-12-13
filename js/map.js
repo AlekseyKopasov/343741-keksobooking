@@ -375,7 +375,6 @@ var onFormSubmitClick = function () {
   });
 };
 
-
 var onMainPinMouseDown = function (mouseDownEvt) {
   mouseDownEvt.preventDefault();
 
