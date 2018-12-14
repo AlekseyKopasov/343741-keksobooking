@@ -103,10 +103,10 @@
     var currentNumberRooms = VALIDATION_CAPACITY[fieldRoomElement.value];
     var capacityValue = parseInt(fieldCapacityElement.value, 10);
     var warningMessage = currentNumberRooms.indexOf(capacityValue === -1) ? '' : ERROR_FORM_MESSAGE;
-    fieldCapacityElement.setCustomValidity(warningMessage);
 
     Array.prototype.forEach.call(formInputElements, function (element) {
       element.style.boxShadow = !element.checkValidity() ? '0 0 3px 3px red' : '';
+      fieldCapacityElement.setCustomValidity(warningMessage);
     });
   };
 
