@@ -132,5 +132,4 @@
   window.offers = {
     generateOffers: generateOffers
   };
-
 })();

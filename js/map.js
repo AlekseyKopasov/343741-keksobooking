@@ -21,7 +21,3 @@
   var mapPinsElement = document.querySelector('.map__pins');
 
 })();
-/**
- * @TODO Ошибка в передаыи адреса в поле Input
- * @TODO Рефакторинг
- */

@@ -22,14 +22,14 @@
   var formFieldsetElements = formElement.querySelectorAll('fieldset');
   var formInputElements = formElement.querySelectorAll('input');
 
-  var inputTitleElement = formElement.querySelector('#title');
-  var inputBuildingElement = formElement.querySelector('#type');
-  var inputPriceElement = formElement.querySelector('#price');
-  var inputCheckinElement = formElement.querySelector('#timein');
-  var inputCheckoutElement = formElement.querySelector('#timeout');
-  var inputAddressElement = formElement.querySelector('#address');
-  var selectCapacityElement = formElement.querySelector('#capacity');
-  var selectRoomElement = formElement.querySelector('#room_number');
+  var fieldTitleElement = formElement.querySelector('#title');
+  var fieldBuildingElement = formElement.querySelector('#type');
+  var fieldPriceElement = formElement.querySelector('#price');
+  var fieldCheckinElement = formElement.querySelector('#timein');
+  var fieldCheckoutElement = formElement.querySelector('#timeout');
+  var fieldAddressElement = formElement.querySelector('#address');
+  var fieldCapacityElement = formElement.querySelector('#capacity');
+  var fieldRoomElement = formElement.querySelector('#room_number');
 
   var buttonSubmitElement = formElement.querySelector('.ad-form__submit');
   var buttonResetElement = formElement.querySelector('.ad-form__reset');
@@ -48,24 +48,24 @@
   };
 
   var onChekinChange = function (evt) {
-    inputCheckoutElement.value = evt.target.value;
+    fieldCheckoutElement.value = evt.target.value;
   };
 
   var onCheckoutChange = function (evt) {
-    inputCheckinElement.value = evt.target.value;
+    fieldCheckinElement.value = evt.target.value;
   };
 
   var onTypeMatchesPriceChange = function (evt) {
     var minPrice = TYPE_MIN_PRICE[evt.target.value];
-    inputPriceElement.min = minPrice;
-    inputPriceElement.placeholder = minPrice.toString();
+    fieldPriceElement.min = minPrice;
+    fieldPriceElement.placeholder = minPrice.toString();
   };
 
   var onTextFieldInvalid = function () {
-    if (inputTitleElement.validity.tooShort) {
-      inputTitleElement.setCustomValidity('');
-    } else if (inputTitleElement.validity.valueMissing) {
-      inputTitleElement.setCustomValidity('');
+    if (fieldTitleElement.validity.tooShort) {
+      fieldTitleElement.setCustomValidity('');
+    } else if (fieldTitleElement.validity.valueMissing) {
+      fieldTitleElement.setCustomValidity('');
     }
   };
 
@@ -77,12 +77,12 @@
     window.pins.removePins();
 
     window.mainPin.resetPosition();
-    inputAddressElement.setAttribute('value', window.mainPin.getPositionX() + ',' + window.mainPin.getPositionY());
+    fieldAddressElement.setAttribute('value', window.mainPin.inputValueX + ',' + window.mainPin.inputValueY);
   };
 
   var onRoomSelectChange = function (evt) {
     var roomsValue = evt.target.value;
-    var optionElements = selectCapacityElement.querySelectorAll('option');
+    var optionElements = fieldCapacityElement.querySelectorAll('option');
 
     evt.target.setCustomValidity('');
 
@@ -95,20 +95,16 @@
     });
   };
 
-  var checkGuestsInRooms = function () {
-    var currentNumberRooms = VALIDATION_CAPACITY[selectRoomElement.value];
-    var capacityValue = parseInt(selectCapacityElement.value, 10);
-    var warningMessage = currentNumberRooms.indexOf(capacityValue === -1) ? '' : ERROR_FORM_MESSAGE;
-
-    selectCapacityElement.setCustomValidity(warningMessage);
-  };
-
   var onCapacitySelectChange = function (evt) {
     evt.target.setCustomValidity('');
   };
 
   var onFormSubmitClick = function () {
-    checkGuestsInRooms();
+    var currentNumberRooms = VALIDATION_CAPACITY[fieldRoomElement.value];
+    var capacityValue = parseInt(fieldCapacityElement.value, 10);
+    var warningMessage = currentNumberRooms.indexOf(capacityValue === -1) ? '' : ERROR_FORM_MESSAGE;
+    fieldCapacityElement.setCustomValidity(warningMessage);
+
     Array.prototype.forEach.call(formInputElements, function (element) {
       element.style.boxShadow = !element.checkValidity() ? '0 0 3px 3px red' : '';
     });
@@ -122,29 +118,29 @@
 
       enableElements(formFieldsetElements);
 
-      inputCheckinElement.addEventListener('change', onChekinChange);
-      inputCheckoutElement.addEventListener('change', onCheckoutChange);
-      inputBuildingElement.addEventListener('change', onTypeMatchesPriceChange);
-      inputTitleElement.addEventListener('invalid', onTextFieldInvalid);
-      selectRoomElement.addEventListener('change', onRoomSelectChange);
-      selectCapacityElement.addEventListener('change', onCapacitySelectChange);
+      fieldCheckinElement.addEventListener('change', onChekinChange);
+      fieldCheckoutElement.addEventListener('change', onCheckoutChange);
+      fieldBuildingElement.addEventListener('change', onTypeMatchesPriceChange);
+      fieldTitleElement.addEventListener('invalid', onTextFieldInvalid);
+      fieldRoomElement.addEventListener('change', onRoomSelectChange);
+      fieldCapacityElement.addEventListener('change', onCapacitySelectChange);
       buttonSubmitElement.addEventListener('click', onFormSubmitClick);
       buttonResetElement.addEventListener('click', onResetFormClick);
     },
     deactivate: function () {
       disableElements(formFieldsetElements);
 
-      inputCheckinElement.removeEventListener('change', onChekinChange);
-      inputCheckoutElement.removeEventListener('change', onCheckoutChange);
-      inputBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
-      inputTitleElement.addEventListener('invalid', onTextFieldInvalid);
-      selectRoomElement.removeEventListener('change', onRoomSelectChange);
-      selectCapacityElement.removeEventListener('change', onCapacitySelectChange);
+      fieldCheckinElement.removeEventListener('change', onChekinChange);
+      fieldCheckoutElement.removeEventListener('change', onCheckoutChange);
+      fieldBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
+      fieldTitleElement.addEventListener('invalid', onTextFieldInvalid);
+      fieldRoomElement.removeEventListener('change', onRoomSelectChange);
+      fieldCapacityElement.removeEventListener('change', onCapacitySelectChange);
       buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
       buttonResetElement.removeEventListener('click', onResetFormClick);
     },
-    setAddressValue: function (x, y) {
-      inputAddressElement.setAttribute('value', x + ',' + y);
+    setAddressValue: function (coords) {
+      fieldAddressElement.setAttribute('value', coords);
     }
   };
 })();
