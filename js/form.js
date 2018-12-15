@@ -1,6 +1,5 @@
 'use strict';
 
-
 (function () {
   var ERROR_FORM_MESSAGE = 'Количество гостей больше допустимого';
 
@@ -62,9 +61,7 @@
   };
 
   var onTextFieldInvalid = function () {
-    if (fieldTitleElement.validity.tooShort) {
-      fieldTitleElement.setCustomValidity('');
-    } else if (fieldTitleElement.validity.valueMissing) {
+    if (fieldTitleElement.validity.tooShort || fieldTitleElement.validity.valueMissing) {
       fieldTitleElement.setCustomValidity('');
     }
   };
@@ -101,8 +98,7 @@
 
   var onFormSubmitClick = function () {
     var currentNumberRooms = VALIDATION_CAPACITY[fieldRoomElement.value];
-    // var capacityValue = parseInt(fieldCapacityElement.value, 10);
-    var warningMessage = currentNumberRooms >= (parseInt(fieldCapacityElement.value, 10))  ? '' : ERROR_FORM_MESSAGE;
+    var warningMessage = currentNumberRooms >= (parseInt(fieldCapacityElement.value, 10)) ? '' : ERROR_FORM_MESSAGE;
     fieldCapacityElement.setCustomValidity(warningMessage);
 
     Array.prototype.forEach.call(formInputElements, function (element) {

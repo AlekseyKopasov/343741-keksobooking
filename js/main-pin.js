@@ -12,9 +12,7 @@
   var OFFER_POSITION_Y_MAX = 630;
 
   var onMainPinMouseUp = function () {
-
     window.map.activate();
-
     window.form.activate();
     mainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
   };

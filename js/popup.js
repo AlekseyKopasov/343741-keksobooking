@@ -1,4 +1,5 @@
 'use strict';
+
 (function () {
   var TYPES_TRANSLATION_MAP = {
     flat: 'Квартира',
@@ -7,10 +8,58 @@
     bungalo: 'Бунгало'
   };
 
+  var ROOMS_TRANSLATE_MAP = {
+    nominative: 'комната',
+    genitive: 'комнат',
+    plural: 'комнаты'
+  };
+
+  var GUESTS_TRANSLATE_MAP = {
+    genitive: 'гостя',
+    plural: 'гостей'
+  };
+
   var POPUP_PHOTO_WIDTH = 45;
   var POPUP_PHOTO_HEIGHT = 40;
 
   var KEYCODE_ESC = 27;
+  var TEMPLATE_PRICE = '{price} ₽/ночь';
+  var TEMPLATE_TIME = 'Заезд после {checkin}, выезд до {checkout}';
+  var TEPMLATE_CAPACITY = '{rooms} {translationRooms} для {guests} {translationGuests}';
+
+  var translateRooms = function (rooms) {
+    if (rooms === 1) {
+      return ROOMS_TRANSLATE_MAP.nominative;
+    }
+
+    if (rooms === 5) {
+      return ROOMS_TRANSLATE_MAP.genitive;
+    }
+
+    return ROOMS_TRANSLATE_MAP.plural;
+  };
+
+  var translateGuests = function (guestsNumber) {
+    return guestsNumber === 1 ? GUESTS_TRANSLATE_MAP.genitive : GUESTS_TRANSLATE_MAP.plural;
+  };
+
+  var createPriceTranslation = function (price) {
+    return TEMPLATE_PRICE.replace('{price}', price);
+  };
+
+  var createCapacityTranslation = function (rooms, guests) {
+    return TEPMLATE_CAPACITY
+      .replace('{rooms}', rooms)
+      .replace('{translationRooms}', translateRooms(rooms))
+      .replace('{guests}', guests)
+      .replace('{translationGuests}', translateGuests(guests));
+  };
+
+  var createTimeTranslation = function (checkin, checkout) {
+    return TEMPLATE_TIME
+      .replace('{checkin}', checkin)
+      .replace('{checkout}', checkout);
+  };
 
   var createPopupFeaturesFragment = function (features) {
     var fragment = document.createDocumentFragment();
@@ -51,9 +100,9 @@
     popupElement.querySelector('.popup__text--address').textContent = offer.address;
     popupElement.querySelector('.popup__avatar').src = data.author.avatar;
     popupElement.querySelector('.popup__description').textContent = offer.description;
-    popupElement.querySelector('.popup__text--price').textContent = window.pins.createPriceTranslation(offer.price);
-    popupElement.querySelector('.popup__text--time').textContent = window.pins.createTimeTranslation(offer.checkin, offer.checkout);
-    popupElement.querySelector('.popup__text--capacity').textContent = window.pins.createCapacityTranslation(offer.rooms, offer.guests);
+    popupElement.querySelector('.popup__text--price').textContent = createPriceTranslation(offer.price);
+    popupElement.querySelector('.popup__text--time').textContent = createTimeTranslation(offer.checkin, offer.checkout);
+    popupElement.querySelector('.popup__text--capacity').textContent = createCapacityTranslation(offer.rooms, offer.guests);
     popupElement.querySelector('.popup__type').textContent = TYPES_TRANSLATION_MAP[offer.type];
 
     popupPhotosElement.innerHTML = '';
@@ -74,6 +123,24 @@
     }
   };
 
+  var openPopup = function (offer) {
+    var currentPopupElement = document.querySelector('.map__card');
+
+    if (currentPopupElement) {
+      currentPopupElement.remove();
+    }
+
+    var popupElement = createPopupElement(offer);
+    var popupCloseElement = popupElement.querySelector('.popup__close');
+
+    popupCloseElement.setAttribute('tabIndex', '0');
+    popupCloseElement.addEventListener('click', onPopupCloseClick);
+
+    mapElement.insertBefore(popupElement, mapFiltersElement);
+
+    document.addEventListener('keydown', onDocumentEscKeydown);
+  };
+
   var onPopupCloseClick = function () {
     closePopup();
   };
@@ -85,11 +152,11 @@
   };
 
   var templatePopupElement = document.querySelector('#card').content.querySelector('.map__card');
+  var mapFiltersElement = document.querySelector('.map__filters-container');
+  var mapElement = document.querySelector('.map');
 
   window.popup = {
-    closePopup: closePopup,
-    createPopupElement: createPopupElement,
-    onPopupCloseClick: onPopupCloseClick,
-    onDocumentEscKeydown: onDocumentEscKeydown
+    openPopup: openPopup,
+    closePopup: closePopup
   };
 })();
