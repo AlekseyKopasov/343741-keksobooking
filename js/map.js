@@ -2,8 +2,18 @@
 
 (function () {
   var mapElement = document.querySelector('.map');
+  var mapPinsElement = document.querySelector('.map__pins');
+  var onLoadSuccess = function () {
+    // eslint-disable-next-line no-console
+    console.log('Load');
+  };
+  var onLoadError = function () {
+    // eslint-disable-next-line no-console
+    console.log('Error');
+  };
 
-  window.offers.generateOffers();
+  window.backend.load(onLoadSuccess, onLoadError);
+  // window.offers.generateOffers();
   window.form.deactivate();
   window.mainPin.activate();
   window.pins.createPins();
@@ -17,7 +27,4 @@
       mapElement.classList.add('map--faded');
     }
   };
-
-  var mapPinsElement = document.querySelector('.map__pins');
-
 })();

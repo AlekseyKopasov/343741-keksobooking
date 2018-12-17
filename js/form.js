@@ -104,6 +104,15 @@
     Array.prototype.forEach.call(formInputElements, function (element) {
       element.style.boxShadow = !element.checkValidity() ? '0 0 3px 3px red' : '';
     });
+
+    // отправка данных по клику на кнопку Submit
+
+    formElement.addEventListener('submit', function (evt) {
+      // window.backend.upload(new FormData(formElement), function (response) {
+      // проверка блокировка/неблокировка формы. Зависит от наличия ошибки
+      // });
+      evt.preventDefault.preventDefault();
+    });
   };
 
   disableElements(formFieldsetElements);
