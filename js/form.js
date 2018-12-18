@@ -2,6 +2,7 @@
 
 (function () {
   var ERROR_FORM_MESSAGE = 'Количество гостей больше допустимого';
+  var ERROR_FORM_STYLE = '0 0 3px 3px red';
 
   var TYPE_MIN_PRICE = {
     bungalo: '0',
@@ -70,11 +71,11 @@
     evt.preventDefault();
     formElement.reset();
 
-    window.popup.closePopup();
-    window.pins.removePins();
-
+    window.popup.remove();
+    window.pins.remove();
     window.mainPin.resetPosition();
-    fieldAddressElement.setAttribute('value', window.mainPin.inputValueX + ',' + window.mainPin.inputValueY);
+
+    fieldAddressElement.setAttribute('value', window.mainPin.getDefaultPositionX() + ',' + window.mainPin.getDefaultPositionY());
   };
 
   var onRoomSelectChange = function (evt) {
@@ -96,21 +97,25 @@
     evt.target.setCustomValidity('');
   };
 
+  var onPostOfferSuccess = function () {
+    // @TODO
+  };
+
+  var onPostOfferError = function () {
+    // @TODO
+  };
+
   var onFormSubmitClick = function () {
     var currentNumberRooms = VALIDATION_CAPACITY[fieldRoomElement.value];
     var warningMessage = currentNumberRooms >= (parseInt(fieldCapacityElement.value, 10)) ? '' : ERROR_FORM_MESSAGE;
     fieldCapacityElement.setCustomValidity(warningMessage);
 
     Array.prototype.forEach.call(formInputElements, function (element) {
-      element.style.boxShadow = !element.checkValidity() ? '0 0 3px 3px red' : '';
+      element.style.boxShadow = !element.checkValidity() ? ERROR_FORM_STYLE : '';
     });
 
-    // отправка данных по клику на кнопку Submit
-
     formElement.addEventListener('submit', function (evt) {
-      // window.backend.upload(new FormData(formElement), function (response) {
-      // проверка блокировка/неблокировка формы. Зависит от наличия ошибки
-      // });
+      window.backend.postOffers(new FormData(formElement), onPostOfferSuccess, onPostOfferError);
       evt.preventDefault.preventDefault();
     });
   };

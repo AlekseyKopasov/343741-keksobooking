@@ -1,11 +1,7 @@
 'use strict';
 
 (function () {
-  var MAIN_PIN_COORDS_DEFAULT = {
-    x: 570,
-    y: 375
-  };
-
+  // @NOTICE: extract map sizes maybe as limits ?
   var OFFER_POSITION_X_MIN = 0;
   var OFFER_POSITION_X_MAX = 1200;
   var OFFER_POSITION_Y_MIN = 130;
@@ -63,13 +59,20 @@
 
   var pinWidth = imageMainPinElement.offsetWidth;
   var pinHeigth = imageMainPinElement.offsetWidth;
-  var pinCoordCenterX = mainPinElement.offsetTop;
-  var pinCoordCenterY = mainPinElement.offsetLeft;
+
+  var defaultPositionX = parseInt(mainPinElement.offsetTop, 10);
+  var defaultPositionY = parseInt(mainPinElement.offsetLeft, 10);
 
   window.mainPin = {
     activate: function () {
       mainPinElement.addEventListener('mouseup', onMainPinMouseUp);
       mainPinElement.addEventListener('mousedown', onMainPinMouseDown);
+    },
+    getDefaultPositionX: function () {
+      return defaultPositionX;
+    },
+    getDefaultPositionY: function () {
+      return defaultPositionY;
     },
     getPositionX: function () {
       return mainPinElement.style.left;
@@ -78,10 +81,8 @@
       return mainPinElement.style.top;
     },
     resetPosition: function () {
-      mainPinElement.style.top = MAIN_PIN_COORDS_DEFAULT.y + 'px';
-      mainPinElement.style.left = MAIN_PIN_COORDS_DEFAULT.x + 'px';
-    },
-    inputValueX: pinCoordCenterX,
-    inputValueY: pinCoordCenterY
+      mainPinElement.style.top = defaultPositionX + 'px';
+      mainPinElement.style.left = defaultPositionY + 'px';
+    }
   };
 })();
