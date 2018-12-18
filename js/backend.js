@@ -6,9 +6,28 @@
     upload: 'https://js.dump.academy/keksobooking'
   };
 
+  var KEYCODE_ESC = 27;
+
+  var closeErrorPopup = function () {
+    errorPopupElement.remove();
+  };
+
+  // возможно надо будет вынести футкции создания попапов в другой модуль
+  var onErrorSubmit = function (message) {
+    errorButtonElement.addEventListener('click', closeErrorPopup);
+    document.addEventListener('click', closeErrorPopup);
+    document.addEventListener('keydown', function (evt) {
+      if (evt.target === KEYCODE_ESC) {
+        closeErrorPopup();
+      }
+    });
+
+    errorMessageElement.textContent = message;
+    mainElement.appendChild(errorMessageElement);
+  };
+
   // eslint-disable-next-line no-unused-vars
-  var onSubmitError = function (message) {
-    // выводит сообщение об ошибке
+  var onSuccessSubmit = function (message) {
 
   };
 
@@ -45,9 +64,15 @@
     createNewXhr('GET', URL.load, onLoad, onError).send();
   };
 
+  var templateErrorElement = document.querySelector('#error').content.querySelector('.error');
+  var errorPopupElement = templateErrorElement.cloneNode(true);
+  var errorButtonElement = errorPopupElement.querySelector('.error__button');
+  var errorMessageElement = errorPopupElement.querySelector('.error__message');
+  var mainElement = document.querySelector('.main');
+
   window.backend = {
     upload: uploadData,
     load: loadData,
-    onSubmitError: onSubmitError
+    onErrorSubmit: onErrorSubmit
   };
 })();
