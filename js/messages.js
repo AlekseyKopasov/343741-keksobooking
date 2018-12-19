@@ -3,9 +3,9 @@
 (function () {
   var KEYCODE_ESC = 27;
 
-  var createErrorMessage = function (message) {
+  var createErrorMessage = function () {
     errorButtonElement.addEventListener('click', onButtonClick);
-    errorMessageElement.textContent = message;
+    errorMessageElement.textContent = errorMessageElement;
 
     mainElement.insertAdjacentElement('afterbegin', errorMessageElement);
 
@@ -13,8 +13,8 @@
     document.addEventListener('keydown', onDocumentKeydown);
   };
 
-  var createSuccessMessage = function (message) {
-    successMessageElement.textContent = message;
+  var createSuccessMessage = function () {
+    successMessageElement.textContent = successMessageElement;
 
     mainElement.insertAdjacentElement('afterbegin', successMessageElement);
 

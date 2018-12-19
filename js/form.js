@@ -108,10 +108,10 @@
   };
 
   var onFormButtonSumbit = function (evt) {
-    evt.preventDefault();
 
     var formData = new FormData();
-    window.backend.postOffers(formData, onPostOfferSuccess, onPostOfferError);
+    window.backend.postOffers(onPostOfferSuccess, onPostOfferError, formData);
+    evt.preventDefault();
   };
 
   var onFormSubmitClick = function () {
