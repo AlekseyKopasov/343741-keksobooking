@@ -11,6 +11,13 @@
 
   var ERROR_REQUEST_TIMEOUT = 'Долгий ответ от сервера';
   var ERROR_CONNECTION = 'Ошибка соединения с сервером';
+  var TEMPLATE_ERROR_MESSAGE = 'Ошибка {statusCode} {statusText}';
+
+  var createErrorInformation = function (statusCode, statusText) {
+    return TEMPLATE_ERROR_MESSAGE
+    .replace('{statusCode}', statusCode)
+    .replace('{statusText}', statusText);
+  };
 
   var createRequest = function (url, method, onLoad, onError, data) {
     var xhr = new XMLHttpRequest();
@@ -21,7 +28,7 @@
       if (xhr.status === STATUS_CODE_OK) {
         onLoad(xhr.response);
       } else {
-        onError('Ошибка. ' + xhr.status + ' ' + xhr.statusText); // @TODO: extract error constant + шаблон реплейс
+        onError(createErrorInformation(xhr.status, xhr.statusText));
       }
     });
 

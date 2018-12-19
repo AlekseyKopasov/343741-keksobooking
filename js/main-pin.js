@@ -1,11 +1,20 @@
 'use strict';
 
 (function () {
-  // @NOTICE: extract map sizes maybe as limits ?
-  var OFFER_POSITION_X_MIN = 0;
-  var OFFER_POSITION_X_MAX = 1200;
-  var OFFER_POSITION_Y_MIN = 130;
-  var OFFER_POSITION_Y_MAX = 630;
+
+  var getMapSize = function () {
+    var mapElement = document.querySelector('.map')
+    .getBoundingClientRect();
+    var PIN_TAIL = 22;
+    var FILTER_FIELD_HEIGHT = 44;
+
+    return {
+      minX: mapElement.top,
+      maxX: mapElement.width,
+      minY: mapElement.left - (pinHeigth + PIN_TAIL),
+      maxY: mapElement.height - (pinHeigth + PIN_TAIL + FILTER_FIELD_HEIGHT)
+    };
+  };
 
   var onMainPinMouseUp = function () {
     window.map.activate();
@@ -37,8 +46,8 @@
       var y = mainPinElement.offsetTop - shiftCoords.y;
       var x = mainPinElement.offsetLeft - shiftCoords.x;
 
-      mainPinElement.style.top = Math.max(OFFER_POSITION_Y_MIN - pinHeigth / 2, Math.min(y, OFFER_POSITION_Y_MAX)) + 'px';
-      mainPinElement.style.left = Math.max(OFFER_POSITION_X_MIN, Math.min(x, OFFER_POSITION_X_MAX - pinWidth)) + 'px';
+      mainPinElement.style.top = Math.max(getMapSize().minY - pinHeigth / 2, Math.min(y, getMapSize().maxY)) + 'px';
+      mainPinElement.style.left = Math.max(getMapSize().minX, Math.min(x, getMapSize().maxX - pinWidth)) + 'px';
     };
 
     var onDocumentMouseUp = function (mouseUpEvt) {

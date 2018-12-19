@@ -20,7 +20,7 @@
     var fragment = document.createDocumentFragment();
 
     offers
-      .slice(0, OFFERS_SHOW_LIMIT)
+      .slice(0, OFFERS_SHOW_LIMIT) // @ TODO копировать 5 рандомных объектов?
       .forEach(function (offer) {
         var element = createPinElement(offer);
 

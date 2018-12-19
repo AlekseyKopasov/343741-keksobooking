@@ -7,14 +7,19 @@
     errorButtonElement.addEventListener('click', onButtonClick);
     errorMessageElement.textContent = message;
 
-    mainElement.appendChild(errorMessageElement);
+    mainElement.insertAdjacentElement('afterbegin', errorMessageElement);
 
     document.addEventListener('click', onDocumentClick);
     document.addEventListener('keydown', onDocumentKeydown);
   };
 
-  var createSuccessMessage = function () {
-    // @TODO
+  var createSuccessMessage = function (message) {
+    successMessageElement.textContent = message;
+
+    mainElement.insertAdjacentElement('afterbegin', successMessageElement);
+
+    document.addEventListener('click', onDocumentClick);
+    document.addEventListener('keydown', onDocumentKeydown);
   };
 
   var closeErrorMessage = function () {
@@ -25,19 +30,32 @@
     errorButtonElement.removeEventListener('click', onButtonClick);
   };
 
+  var closeSuccessMessage = function () {
+    successPopupElement.remove();
+
+    document.removeEventListener('click', onDocumentClick);
+    document.removeEventListener('keydown', onDocumentKeydown);
+  };
+
   var onButtonClick = function () {
     closeErrorMessage();
   };
 
   var onDocumentClick = function () {
     closeErrorMessage();
+    closeSuccessMessage();
   };
 
   var onDocumentKeydown = function (evt) {
     if (evt.keyCode === KEYCODE_ESC) {
       closeErrorMessage();
+      closeSuccessMessage();
     }
   };
+  var templateSuccessElement = document.querySelector('#success').content.querySelector('.success');
+  var successPopupElement = templateSuccessElement.cloneNode(true);
+
+  var successMessageElement = successPopupElement.querySelector('.success__message');
 
   var templateErrorElement = document.querySelector('#error').content.querySelector('.error');
 

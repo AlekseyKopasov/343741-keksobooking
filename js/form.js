@@ -97,12 +97,21 @@
     evt.target.setCustomValidity('');
   };
 
-  var onPostOfferSuccess = function () {
-    // @TODO
+  var onPostOfferSuccess = function () { // @TODO
+    window.messages.createSuccessMessage();
+    window.form.deactivate();
+    window.map.deactivate();
   };
 
-  var onPostOfferError = function () {
-    // @TODO
+  var onPostOfferError = function (message) {
+    window.messages.createErrorMessage(message); // @TODO
+  };
+
+  var onFormButtonSumbit = function (evt) {
+    evt.preventDefault();
+
+    var formData = new FormData();
+    window.backend.postOffers(formData, onPostOfferSuccess, onPostOfferError);
   };
 
   var onFormSubmitClick = function () {
@@ -113,12 +122,8 @@
     Array.prototype.forEach.call(formInputElements, function (element) {
       element.style.boxShadow = !element.checkValidity() ? ERROR_FORM_STYLE : '';
     });
-
-    formElement.addEventListener('submit', function (evt) {
-      window.backend.postOffers(new FormData(formElement), onPostOfferSuccess, onPostOfferError);
-      evt.preventDefault.preventDefault();
-    });
   };
+
 
   disableElements(formFieldsetElements);
 
@@ -136,6 +141,7 @@
       fieldCapacityElement.addEventListener('change', onCapacitySelectChange);
       buttonSubmitElement.addEventListener('click', onFormSubmitClick);
       buttonResetElement.addEventListener('click', onResetFormClick);
+      formElement.addEventListener('submit', onFormButtonSumbit);
     },
     deactivate: function () {
       disableElements(formFieldsetElements);
@@ -148,6 +154,8 @@
       fieldCapacityElement.removeEventListener('change', onCapacitySelectChange);
       buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
       buttonResetElement.removeEventListener('click', onResetFormClick);
+      formElement.addEventListener('submit', onFormButtonSumbit);
+
     },
     setAddressValue: function (coords) {
       fieldAddressElement.setAttribute('value', coords);
