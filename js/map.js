@@ -7,8 +7,8 @@
     window.pins.create(offers);
   };
 
-  var onLoadError = function (error) {
-    window.message.createErrorMessage(error);
+  var onLoadError = function () {
+    window.message.createErrorMessage();
   };
 
   window.form.deactivate();

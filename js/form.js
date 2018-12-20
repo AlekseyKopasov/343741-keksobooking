@@ -97,30 +97,18 @@
     evt.target.setCustomValidity('');
   };
 
-  var onPostOfferSuccess = function () { // @TODO
-    window.messages.createSuccessMessage();
-    window.form.deactivate();
-    window.map.deactivate();
-  };
-
-  var onPostOfferError = function (message) {
-    window.messages.createErrorMessage(message); // @TODO
-  };
-
-  var onFormButtonSumbit = function (evt) {
-
-    var formData = new FormData();
-    window.backend.postOffers(onPostOfferSuccess, onPostOfferError, formData);
-    evt.preventDefault();
-  };
-
   var onFormSubmitClick = function () {
     var currentNumberRooms = VALIDATION_CAPACITY[fieldRoomElement.value];
-    var warningMessage = currentNumberRooms >= (parseInt(fieldCapacityElement.value, 10)) ? '' : ERROR_FORM_MESSAGE;
+    var warningMessage = currentNumberRooms >= (parseInt(fieldCapacityElement.value, 10)) ? ERROR_FORM_MESSAGE : '';
     fieldCapacityElement.setCustomValidity(warningMessage);
 
     Array.prototype.forEach.call(formInputElements, function (element) {
       element.style.boxShadow = !element.checkValidity() ? ERROR_FORM_STYLE : '';
+    });
+
+    formElement.addEventListener('submit', function (evt) {
+      window.backend.postOffer(new FormData(formElement), window.messages.createErrorMessage, window.messages.createErrorMessage);
+      evt.preventDefault();
     });
   };
 
@@ -141,7 +129,6 @@
       fieldCapacityElement.addEventListener('change', onCapacitySelectChange);
       buttonSubmitElement.addEventListener('click', onFormSubmitClick);
       buttonResetElement.addEventListener('click', onResetFormClick);
-      formElement.addEventListener('submit', onFormButtonSumbit);
     },
     deactivate: function () {
       disableElements(formFieldsetElements);
@@ -149,12 +136,11 @@
       fieldCheckinElement.removeEventListener('change', onChekinChange);
       fieldCheckoutElement.removeEventListener('change', onCheckoutChange);
       fieldBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
-      fieldTitleElement.addEventListener('invalid', onTextFieldInvalid);
+      fieldTitleElement.removeEventListener('invalid', onTextFieldInvalid);
       fieldRoomElement.removeEventListener('change', onRoomSelectChange);
       fieldCapacityElement.removeEventListener('change', onCapacitySelectChange);
       buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
       buttonResetElement.removeEventListener('click', onResetFormClick);
-      formElement.addEventListener('submit', onFormButtonSumbit);
 
     },
     setAddressValue: function (coords) {

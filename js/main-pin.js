@@ -5,6 +5,7 @@
   var getMapSize = function () {
     var mapElement = document.querySelector('.map')
     .getBoundingClientRect();
+
     var PIN_TAIL = 22;
     var FILTER_FIELD_HEIGHT = 44;
 
