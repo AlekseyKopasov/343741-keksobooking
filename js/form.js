@@ -98,16 +98,19 @@
   };
 
   var onFormSubmitClick = function () {
+    var optionElements = fieldCapacityElement.querySelectorAll('option');
     var currentNumberRooms = VALIDATION_CAPACITY[fieldRoomElement.value];
-    var warningMessage = currentNumberRooms >= (parseInt(fieldCapacityElement.value, 10)) ? ERROR_FORM_MESSAGE : '';
-    fieldCapacityElement.setCustomValidity(warningMessage);
+    Array.prototype.forEach.call(optionElements, function (element) {
+      var warningMessage = currentNumberRooms >= element ? ERROR_FORM_MESSAGE : '';
+      fieldCapacityElement.setCustomValidity(warningMessage);
+    });
 
     Array.prototype.forEach.call(formInputElements, function (element) {
       element.style.boxShadow = !element.checkValidity() ? ERROR_FORM_STYLE : '';
     });
 
     formElement.addEventListener('submit', function (evt) {
-      window.backend.postOffer(new FormData(formElement), window.messages.createErrorMessage, window.messages.createErrorMessage);
+      window.backend.postOffer(new FormData(formElement), window.messages.createSuccessMessage, window.messages.createErrorMessage);
       evt.preventDefault();
     });
   };
