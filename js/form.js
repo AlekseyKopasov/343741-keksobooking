@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  var ERROR_FORM_MESSAGE = 'Количество гостей больше допустимого';
   var ERROR_FORM_STYLE = '0 0 3px 3px red';
 
   var TYPE_MIN_PRICE = {
@@ -20,7 +19,6 @@
 
   var formElement = document.querySelector('.ad-form');
   var formFieldsetElements = formElement.querySelectorAll('fieldset');
-  var formInputElements = formElement.querySelectorAll('input');
 
   var fieldTitleElement = formElement.querySelector('#title');
   var fieldBuildingElement = formElement.querySelector('#type');
@@ -31,7 +29,6 @@
   var fieldCapacityElement = formElement.querySelector('#capacity');
   var fieldRoomElement = formElement.querySelector('#room_number');
 
-  var buttonSubmitElement = formElement.querySelector('.ad-form__submit');
   var buttonResetElement = formElement.querySelector('.ad-form__reset');
 
 
@@ -75,7 +72,7 @@
     window.pins.remove();
     window.mainPin.resetPosition();
 
-    fieldAddressElement.setAttribute('value', window.mainPin.getDefaultPositionX() + ',' + window.mainPin.getDefaultPositionY());
+    fieldAddressElement.setAttribute('value', window.mainPin.getDefaultPosition());
   };
 
   var onRoomSelectChange = function (evt) {
@@ -97,24 +94,19 @@
     evt.target.setCustomValidity('');
   };
 
-  var onFormSubmitClick = function () {
-    var optionElements = fieldCapacityElement.querySelectorAll('option');
-    var currentNumberRooms = VALIDATION_CAPACITY[fieldRoomElement.value];
-    Array.prototype.forEach.call(optionElements, function (element) {
-      var warningMessage = currentNumberRooms >= element ? ERROR_FORM_MESSAGE : '';
-      fieldCapacityElement.setCustomValidity(warningMessage);
-    });
-
-    Array.prototype.forEach.call(formInputElements, function (element) {
-      element.style.boxShadow = !element.checkValidity() ? ERROR_FORM_STYLE : '';
-    });
-
-    formElement.addEventListener('submit', function (evt) {
-      window.backend.postOffer(new FormData(formElement), window.messages.createSuccessMessage, window.messages.createErrorMessage);
-      evt.preventDefault();
-    });
+  var onFormChange = function (evt) {
+    evt.target.style.boxShadow = !(evt.target.checkValidity()) ? ERROR_FORM_STYLE : '';
   };
 
+  var onFormSubmit = function (evt) {
+    window.backend.postOffer(
+        new FormData(formElement),
+        window.messages.createSuccessMessage,
+        window.messages.createErrorMessage
+    );
+
+    evt.preventDefault();
+  };
 
   disableElements(formFieldsetElements);
 
@@ -130,8 +122,12 @@
       fieldTitleElement.addEventListener('invalid', onTextFieldInvalid);
       fieldRoomElement.addEventListener('change', onRoomSelectChange);
       fieldCapacityElement.addEventListener('change', onCapacitySelectChange);
-      buttonSubmitElement.addEventListener('click', onFormSubmitClick);
+
       buttonResetElement.addEventListener('click', onResetFormClick);
+
+
+      formElement.addEventListener('change', onFormChange);
+      formElement.addEventListener('submit', onFormSubmit);
     },
     deactivate: function () {
       disableElements(formFieldsetElements);
@@ -142,8 +138,8 @@
       fieldTitleElement.removeEventListener('invalid', onTextFieldInvalid);
       fieldRoomElement.removeEventListener('change', onRoomSelectChange);
       fieldCapacityElement.removeEventListener('change', onCapacitySelectChange);
-      buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
       buttonResetElement.removeEventListener('click', onResetFormClick);
+      formElement.removeEventListener('submit', onFormSubmit);
 
     },
     setAddressValue: function (coords) {

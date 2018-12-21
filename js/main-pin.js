@@ -1,13 +1,12 @@
 'use strict';
 
 (function () {
+  var PIN_TAIL = 22;
+  var FILTER_FIELD_HEIGHT = 44;
 
   var getMapSize = function () {
     var mapElement = document.querySelector('.map')
     .getBoundingClientRect();
-
-    var PIN_TAIL = 22;
-    var FILTER_FIELD_HEIGHT = 44;
 
     return {
       minX: mapElement.top,
@@ -78,11 +77,8 @@
       mainPinElement.addEventListener('mouseup', onMainPinMouseUp);
       mainPinElement.addEventListener('mousedown', onMainPinMouseDown);
     },
-    getDefaultPositionX: function () {
-      return defaultPositionX;
-    },
-    getDefaultPositionY: function () {
-      return defaultPositionY;
+    getDefaultPosition: function () {
+      return defaultPositionX + ',' + defaultPositionY;
     },
     getPositionX: function () {
       return mainPinElement.style.left;
