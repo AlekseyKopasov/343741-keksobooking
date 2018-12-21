@@ -17,8 +17,8 @@
   };
 
   var onMainPinMouseUp = function () {
-    window.map.activate();
-    window.form.activate();
+    window.map.activate(); //
+    window.form.activate(); //
     mainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
   };
 
@@ -53,7 +53,8 @@
     var onDocumentMouseUp = function (mouseUpEvt) {
       mouseUpEvt.preventDefault();
 
-      window.form.setAddressValue(startCoords.x + ',' + startCoords.y);
+      // window.form.setAddressValue(window.mainPin.getPosition());
+      window.mainPin.getPosition();
 
       document.removeEventListener('mousemove', onDocumentMouseMove);
       document.removeEventListener('mouseup', onDocumentMouseUp);
@@ -80,11 +81,8 @@
     getDefaultPosition: function () {
       return defaultPositionX + ',' + defaultPositionY;
     },
-    getPositionX: function () {
-      return mainPinElement.style.left;
-    },
-    getPositionY: function () {
-      return mainPinElement.style.top;
+    getPosition: function () {
+      return mainPinElement.style.left + ',' + mainPinElement.style.top;
     },
     resetPosition: function () {
       mainPinElement.style.top = defaultPositionX + 'px';

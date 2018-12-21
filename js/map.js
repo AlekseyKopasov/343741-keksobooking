@@ -11,7 +11,26 @@
     window.message.createErrorMessage();
   };
 
-  window.form.deactivate();
+  var onPostOfferSuccess = function () {
+    window.form.deactivate(window.mainPin.getDefaultPosition());
+    window.messages.createSuccessMessage();
+    window.pins.remove();
+    window.mainPin.resetPosition();
+  };
+
+  var onPostOfferError = function () {
+    window.messages.createErrorMessage();
+  };
+
+  var callbackFormSubmit = function (data) {
+    window.backend.postOffer(
+        data,
+        onPostOfferSuccess,
+        onPostOfferError
+    );
+  };
+
+  window.form.activate(callbackFormSubmit);
   window.mainPin.activate();
 
   window.map = {

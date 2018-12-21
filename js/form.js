@@ -29,9 +29,6 @@
   var fieldCapacityElement = formElement.querySelector('#capacity');
   var fieldRoomElement = formElement.querySelector('#room_number');
 
-  var buttonResetElement = formElement.querySelector('.ad-form__reset');
-
-
   var disableElements = function (elements) {
     Array.prototype.forEach.call(elements, function (element) {
       element.setAttribute('disabled', '');
@@ -64,17 +61,6 @@
     }
   };
 
-  var onResetFormClick = function (evt) {
-    evt.preventDefault();
-    formElement.reset();
-
-    window.popup.remove();
-    window.pins.remove();
-    window.mainPin.resetPosition();
-
-    fieldAddressElement.setAttribute('value', window.mainPin.getDefaultPosition());
-  };
-
   var onRoomSelectChange = function (evt) {
     var roomsValue = evt.target.value;
     var optionElements = fieldCapacityElement.querySelectorAll('option');
@@ -98,20 +84,19 @@
     evt.target.style.boxShadow = !(evt.target.checkValidity()) ? ERROR_FORM_STYLE : '';
   };
 
-  var onFormSubmit = function (evt) {
-    window.backend.postOffer(
-        new FormData(formElement),
-        window.messages.createSuccessMessage,
-        window.messages.createErrorMessage
-    );
-
-    evt.preventDefault();
+  var createFormSubmitHandler = function (callback) {
+    return function (evt) {
+      callback(new FormData(formElement));
+      evt.preventDefault();
+    };
   };
+
+  var onFormSubmit;
 
   disableElements(formFieldsetElements);
 
   window.form = {
-    activate: function () {
+    activate: function (callbackFormSubmit) {
       formElement.classList.remove('ad-form--disabled');
 
       enableElements(formFieldsetElements);
@@ -123,14 +108,17 @@
       fieldRoomElement.addEventListener('change', onRoomSelectChange);
       fieldCapacityElement.addEventListener('change', onCapacitySelectChange);
 
-      buttonResetElement.addEventListener('click', onResetFormClick);
-
+      onFormSubmit = createFormSubmitHandler(callbackFormSubmit);
 
       formElement.addEventListener('change', onFormChange);
       formElement.addEventListener('submit', onFormSubmit);
     },
-    deactivate: function () {
+    deactivate: function (fieldAddressValue) {
       disableElements(formFieldsetElements);
+
+      formElement.reset();
+
+      fieldAddressElement.setAttribute('value', fieldAddressValue);
 
       fieldCheckinElement.removeEventListener('change', onChekinChange);
       fieldCheckoutElement.removeEventListener('change', onCheckoutChange);
@@ -138,9 +126,9 @@
       fieldTitleElement.removeEventListener('invalid', onTextFieldInvalid);
       fieldRoomElement.removeEventListener('change', onRoomSelectChange);
       fieldCapacityElement.removeEventListener('change', onCapacitySelectChange);
-      buttonResetElement.removeEventListener('click', onResetFormClick);
-      formElement.removeEventListener('submit', onFormSubmit);
 
+      formElement.removeEventListener('change', onFormChange);
+      formElement.removeEventListener('submit', onFormSubmit);
     },
     setAddressValue: function (coords) {
       fieldAddressElement.setAttribute('value', coords);
