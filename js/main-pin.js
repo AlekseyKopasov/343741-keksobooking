@@ -17,8 +17,6 @@
   };
 
   var onMainPinMouseUp = function () {
-    window.map.activate(); //
-    window.form.activate(); //
     mainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
   };
 
@@ -52,9 +50,8 @@
 
     var onDocumentMouseUp = function (mouseUpEvt) {
       mouseUpEvt.preventDefault();
-
-      // window.form.setAddressValue(window.mainPin.getPosition());
-      window.mainPin.getPosition();
+      // @TODO ?
+      window.form.setAddressValue(window.mainPin.getPosition());
 
       document.removeEventListener('mousemove', onDocumentMouseMove);
       document.removeEventListener('mouseup', onDocumentMouseUp);
@@ -62,6 +59,12 @@
 
     document.addEventListener('mousemove', onDocumentMouseMove);
     document.addEventListener('mouseup', onDocumentMouseUp);
+  };
+
+  var createMainPinClickHandler = function (callback) {
+    return function () {
+      callback();
+    };
   };
 
   var mainPinElement = document.querySelector('.map__pin--main');
@@ -73,16 +76,24 @@
   var defaultPositionX = parseInt(mainPinElement.offsetTop, 10);
   var defaultPositionY = parseInt(mainPinElement.offsetLeft, 10);
 
+  var onMainPinClick;
+  // TODO удалить обработчик
+  mainPinElement.removeEventListener('click', onMainPinClick);
+
   window.mainPin = {
-    activate: function () {
+    activate: function (callbackMapActivate) {
       mainPinElement.addEventListener('mouseup', onMainPinMouseUp);
       mainPinElement.addEventListener('mousedown', onMainPinMouseDown);
+
+      onMainPinClick = createMainPinClickHandler(callbackMapActivate);
+      mainPinElement.addEventListener('click', onMainPinClick);
+
     },
     getDefaultPosition: function () {
       return defaultPositionX + ',' + defaultPositionY;
     },
     getPosition: function () {
-      return mainPinElement.style.left + ',' + mainPinElement.style.top;
+      return parseInt(mainPinElement.style.left, 10) + ',' + parseInt(mainPinElement.style.top, 10);
     },
     resetPosition: function () {
       mainPinElement.style.top = defaultPositionX + 'px';

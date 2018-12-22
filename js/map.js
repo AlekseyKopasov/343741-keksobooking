@@ -30,11 +30,15 @@
     );
   };
 
-  window.form.activate(callbackFormSubmit);
-  window.mainPin.activate();
+  var callbackMapActivate = function () {
+    window.map.activate();
+  };
+
+  window.mainPin.activate(callbackMapActivate);
 
   window.map = {
     activate: function () {
+      window.form.activate(callbackFormSubmit);
       mapElement.classList.remove('map--faded');
       window.backend.getOffers(onLoadSuccess, onLoadError);
     },
