@@ -20,51 +20,49 @@
     mainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
   };
 
-  var onMainPinMouseDown = function (mouseDownEvt) {
-    mouseDownEvt.preventDefault();
+  var createMainPinMouseDownHanlder = function (callbackMouseUp) {
+    return function (mouseDownEvt) {
+      mouseDownEvt.preventDefault();
 
-    var startCoords = {
-      x: mouseDownEvt.clientX,
-      y: mouseDownEvt.clientY
-    };
-
-    var onDocumentMouseMove = function (mouseMoveEvt) {
-      mouseMoveEvt.preventDefault();
-
-      var shiftCoords = {
-        x: startCoords.x - mouseMoveEvt.clientX,
-        y: startCoords.y - mouseMoveEvt.clientY
+      var startCoords = {
+        x: mouseDownEvt.clientX,
+        y: mouseDownEvt.clientY
       };
 
-      startCoords = {
-        x: mouseMoveEvt.clientX,
-        y: mouseMoveEvt.clientY
+      var onDocumentMouseMove = function (mouseMoveEvt) {
+        mouseMoveEvt.preventDefault();
+
+        var shiftCoords = {
+          x: startCoords.x - mouseMoveEvt.clientX,
+          y: startCoords.y - mouseMoveEvt.clientY
+        };
+
+        startCoords = {
+          x: mouseMoveEvt.clientX,
+          y: mouseMoveEvt.clientY
+        };
+
+        var y = mainPinElement.offsetTop - shiftCoords.y;
+        var x = mainPinElement.offsetLeft - shiftCoords.x;
+
+        mainPinElement.style.top = Math.max(getMapSize().minY - pinHeigth / 2, Math.min(y, getMapSize().maxY)) + 'px';
+        mainPinElement.style.left = Math.max(getMapSize().minX, Math.min(x, getMapSize().maxX - pinWidth)) + 'px';
       };
 
-      var y = mainPinElement.offsetTop - shiftCoords.y;
-      var x = mainPinElement.offsetLeft - shiftCoords.x;
+      var onDocumentMouseUp = function (mouseUpEvt) {
+        mouseUpEvt.preventDefault();
 
-      mainPinElement.style.top = Math.max(getMapSize().minY - pinHeigth / 2, Math.min(y, getMapSize().maxY)) + 'px';
-      mainPinElement.style.left = Math.max(getMapSize().minX, Math.min(x, getMapSize().maxX - pinWidth)) + 'px';
-    };
+        callbackMouseUp(window.mainPin.getPosition());
 
-    var onDocumentMouseUp = function (mouseUpEvt) {
-      mouseUpEvt.preventDefault();
-      // TODO осталась одна зависимость
-      window.form.setAddressValue(window.mainPin.getPosition());
-
-      document.removeEventListener('mousemove', onDocumentMouseMove);
-      document.removeEventListener('mouseup', onDocumentMouseUp);
-    };
-    document.addEventListener('mousemove', onDocumentMouseMove);
-    document.addEventListener('mouseup', onDocumentMouseUp);
-  };
-
-  var createMainPinClickHandler = function (callback) {
-    return function () {
-      callback();
+        document.removeEventListener('mousemove', onDocumentMouseMove);
+        document.removeEventListener('mouseup', onDocumentMouseUp);
+      };
+      document.addEventListener('mousemove', onDocumentMouseMove);
+      document.addEventListener('mouseup', onDocumentMouseUp);
     };
   };
+
+  var onMainPinMouseDown;
 
   var mainPinElement = document.querySelector('.map__pin--main');
   var imageMainPinElement = mainPinElement.querySelector('img');
@@ -75,18 +73,15 @@
   var defaultPositionX = parseInt(mainPinElement.offsetTop, 10);
   var defaultPositionY = parseInt(mainPinElement.offsetLeft, 10);
 
-  var onMainPinClick;
-  // TODO удалить обработчик
-  mainPinElement.removeEventListener('click', onMainPinClick);
-
   window.mainPin = {
-    activate: function (callbackMapActivate) {
+    activate: function (callbackMouseUp) {
+      onMainPinMouseDown = createMainPinMouseDownHanlder(callbackMouseUp);
       mainPinElement.addEventListener('mouseup', onMainPinMouseUp);
       mainPinElement.addEventListener('mousedown', onMainPinMouseDown);
-
-      onMainPinClick = createMainPinClickHandler(callbackMapActivate);
-      mainPinElement.addEventListener('click', onMainPinClick);
-
+    },
+    deactivate: function () {
+      mainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
+      mainPinElement.removeEventListener('mousedown', onMainPinMouseDown);
     },
     getDefaultPosition: function () {
       return defaultPositionX + ',' + defaultPositionY;

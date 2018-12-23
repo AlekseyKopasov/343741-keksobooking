@@ -12,10 +12,14 @@
   };
 
   var onPostOfferSuccess = function () {
-    window.form.deactivate(window.mainPin.getDefaultPosition());
     window.messages.createSuccessMessage();
+
     window.pins.remove();
     window.mainPin.resetPosition();
+    window.form.deactivate(window.mainPin.getDefaultPosition());
+
+    isMapActive = false;
+    mapElement.classList.add('map--faded');
   };
 
   var onPostOfferError = function () {
@@ -23,11 +27,7 @@
   };
 
   var callbackFormSubmit = function (data) {
-    window.backend.postOffer(
-        data,
-        onPostOfferSuccess,
-        onPostOfferError
-    );
+    window.backend.postOffer(data, onPostOfferSuccess, onPostOfferError);
   };
 
   var callbackFormReset = function () {
@@ -36,21 +36,19 @@
     window.mainPin.resetPosition();
   };
 
-  var callbackMapActivate = function () {
-    window.map.activate();
-  };
+  var isMapActive = false;
 
-  window.mainPin.activate(callbackMapActivate);
-
-  window.map = {
-    activate: function () {
-      window.form.activate(callbackFormSubmit, callbackFormReset);
+  var callbackMainPinMouseUp = function (mainPinPosition) {
+    if (!isMapActive) {
       mapElement.classList.remove('map--faded');
       window.backend.getOffers(onGetOffersSuccess, onGetOffersError);
-    },
-    deactivate: function () {
-      mapElement.classList.add('map--faded');
+      window.form.activate(callbackFormSubmit, callbackFormReset);
     }
+
+    isMapActive = true;
+    window.form.setAddressValue(mainPinPosition);
   };
+
+  window.mainPin.activate(callbackMainPinMouseUp);
 })();
 
