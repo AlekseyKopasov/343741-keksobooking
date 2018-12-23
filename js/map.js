@@ -30,6 +30,12 @@
     );
   };
 
+  var callbackFormReset = function () {
+    window.popup.remove();
+    window.pins.remove();
+    window.mainPin.resetPosition();
+  };
+
   var callbackMapActivate = function () {
     window.map.activate();
   };
@@ -38,7 +44,7 @@
 
   window.map = {
     activate: function () {
-      window.form.activate(callbackFormSubmit);
+      window.form.activate(callbackFormSubmit, callbackFormReset);
       mapElement.classList.remove('map--faded');
       window.backend.getOffers(onLoadSuccess, onLoadError);
     },

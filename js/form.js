@@ -84,19 +84,26 @@
     evt.target.style.boxShadow = !(evt.target.checkValidity()) ? ERROR_FORM_STYLE : '';
   };
 
-  var createFormSubmitHandler = function (callback) {
+  var createFormSubmitHandler = function (callbackSubmit) {
     return function (evt) {
-      callback(new FormData(formElement));
+      callbackSubmit(new FormData(formElement));
       evt.preventDefault();
     };
   };
 
+  var createFormResetHandler = function (callbackReset) {
+    return function () {
+      callbackReset();
+    };
+  };
+
   var onFormSubmit;
+  var onFormReset;
 
   disableElements(formFieldsetElements);
 
   window.form = {
-    activate: function (callbackFormSubmit) {
+    activate: function (callbackFormSubmit, callbackFormReset) {
       formElement.classList.remove('ad-form--disabled');
 
       enableElements(formFieldsetElements);
@@ -109,9 +116,11 @@
       fieldCapacityElement.addEventListener('change', onCapacitySelectChange);
 
       onFormSubmit = createFormSubmitHandler(callbackFormSubmit);
+      onFormReset = createFormResetHandler(callbackFormReset);
 
       formElement.addEventListener('change', onFormChange);
       formElement.addEventListener('submit', onFormSubmit);
+      formElement.addEventListener('reset', onFormReset);
     },
     deactivate: function (fieldAddressValue) {
       disableElements(formFieldsetElements);
@@ -129,6 +138,7 @@
 
       formElement.removeEventListener('change', onFormChange);
       formElement.removeEventListener('submit', onFormSubmit);
+      formElement.addEventListener('reset', onFormReset);
     },
     setAddressValue: function (coords) {
       fieldAddressElement.setAttribute('value', coords);

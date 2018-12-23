@@ -50,13 +50,12 @@
 
     var onDocumentMouseUp = function (mouseUpEvt) {
       mouseUpEvt.preventDefault();
-      // @TODO ?
+      // TODO осталась одна зависимость
       window.form.setAddressValue(window.mainPin.getPosition());
 
       document.removeEventListener('mousemove', onDocumentMouseMove);
       document.removeEventListener('mouseup', onDocumentMouseUp);
     };
-
     document.addEventListener('mousemove', onDocumentMouseMove);
     document.addEventListener('mouseup', onDocumentMouseUp);
   };
