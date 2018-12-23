@@ -3,11 +3,11 @@
 (function () {
   var mapElement = document.querySelector('.map');
 
-  var onLoadSuccess = function (offers) {
+  var onGetOffersSuccess = function (offers) {
     window.pins.create(offers);
   };
 
-  var onLoadError = function () {
+  var onGetOffersError = function () {
     window.message.createErrorMessage();
   };
 
@@ -46,7 +46,7 @@
     activate: function () {
       window.form.activate(callbackFormSubmit, callbackFormReset);
       mapElement.classList.remove('map--faded');
-      window.backend.getOffers(onLoadSuccess, onLoadError);
+      window.backend.getOffers(onGetOffersSuccess, onGetOffersError);
     },
     deactivate: function () {
       mapElement.classList.add('map--faded');
