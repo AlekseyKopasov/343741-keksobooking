@@ -156,7 +156,7 @@
   var mapElement = document.querySelector('.map');
 
   window.popup = {
-    openPopup: openPopup,
-    closePopup: closePopup
+    create: openPopup,
+    remove: closePopup
   };
 })();
