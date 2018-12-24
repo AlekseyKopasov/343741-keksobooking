@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-
   var filterFormElement = document.querySelector('.map__filters');
   var filterInputElements = filterFormElement.querySelectorAll('input');
   var filterSelectElements = filterFormElement.querySelectorAll('select');
