@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var ERROR_FORM_MESSAGE = 'Количество гостей больше допустимого';
+  var ERROR_FORM_STYLE = '0 0 3px 3px red';
 
   var TYPE_MIN_PRICE = {
     bungalo: '0',
@@ -19,7 +19,6 @@
 
   var formElement = document.querySelector('.ad-form');
   var formFieldsetElements = formElement.querySelectorAll('fieldset');
-  var formInputElements = formElement.querySelectorAll('input');
 
   var fieldTitleElement = formElement.querySelector('#title');
   var fieldBuildingElement = formElement.querySelector('#type');
@@ -29,10 +28,6 @@
   var fieldAddressElement = formElement.querySelector('#address');
   var fieldCapacityElement = formElement.querySelector('#capacity');
   var fieldRoomElement = formElement.querySelector('#room_number');
-
-  var buttonSubmitElement = formElement.querySelector('.ad-form__submit');
-  var buttonResetElement = formElement.querySelector('.ad-form__reset');
-
 
   var disableElements = function (elements) {
     Array.prototype.forEach.call(elements, function (element) {
@@ -66,17 +61,6 @@
     }
   };
 
-  var onResetFormClick = function (evt) {
-    evt.preventDefault();
-    formElement.reset();
-
-    window.popup.closePopup();
-    window.pins.removePins();
-
-    window.mainPin.resetPosition();
-    fieldAddressElement.setAttribute('value', window.mainPin.inputValueX + ',' + window.mainPin.inputValueY);
-  };
-
   var onRoomSelectChange = function (evt) {
     var roomsValue = evt.target.value;
     var optionElements = fieldCapacityElement.querySelectorAll('option');
@@ -96,20 +80,30 @@
     evt.target.setCustomValidity('');
   };
 
-  var onFormSubmitClick = function () {
-    var currentNumberRooms = VALIDATION_CAPACITY[fieldRoomElement.value];
-    var warningMessage = currentNumberRooms >= (parseInt(fieldCapacityElement.value, 10)) ? '' : ERROR_FORM_MESSAGE;
-    fieldCapacityElement.setCustomValidity(warningMessage);
-
-    Array.prototype.forEach.call(formInputElements, function (element) {
-      element.style.boxShadow = !element.checkValidity() ? '0 0 3px 3px red' : '';
-    });
+  var onFormChange = function (evt) {
+    evt.target.style.boxShadow = !(evt.target.checkValidity()) ? ERROR_FORM_STYLE : '';
   };
+
+  var createFormSubmitHandler = function (callbackSubmit) {
+    return function (evt) {
+      callbackSubmit(new FormData(formElement));
+      evt.preventDefault();
+    };
+  };
+
+  var createFormResetHandler = function (callbackReset) {
+    return function () {
+      callbackReset();
+    };
+  };
+
+  var onFormSubmit;
+  var onFormReset;
 
   disableElements(formFieldsetElements);
 
   window.form = {
-    activate: function () {
+    activate: function (callbackFormSubmit, callbackFormReset) {
       formElement.classList.remove('ad-form--disabled');
 
       enableElements(formFieldsetElements);
@@ -120,20 +114,31 @@
       fieldTitleElement.addEventListener('invalid', onTextFieldInvalid);
       fieldRoomElement.addEventListener('change', onRoomSelectChange);
       fieldCapacityElement.addEventListener('change', onCapacitySelectChange);
-      buttonSubmitElement.addEventListener('click', onFormSubmitClick);
-      buttonResetElement.addEventListener('click', onResetFormClick);
+
+      onFormSubmit = createFormSubmitHandler(callbackFormSubmit);
+      onFormReset = createFormResetHandler(callbackFormReset);
+
+      formElement.addEventListener('change', onFormChange);
+      formElement.addEventListener('submit', onFormSubmit);
+      formElement.addEventListener('reset', onFormReset);
     },
-    deactivate: function () {
+    deactivate: function (fieldAddressValue) {
       disableElements(formFieldsetElements);
+
+      formElement.reset();
+
+      fieldAddressElement.setAttribute('value', fieldAddressValue);
 
       fieldCheckinElement.removeEventListener('change', onChekinChange);
       fieldCheckoutElement.removeEventListener('change', onCheckoutChange);
       fieldBuildingElement.removeEventListener('change', onTypeMatchesPriceChange);
-      fieldTitleElement.addEventListener('invalid', onTextFieldInvalid);
+      fieldTitleElement.removeEventListener('invalid', onTextFieldInvalid);
       fieldRoomElement.removeEventListener('change', onRoomSelectChange);
       fieldCapacityElement.removeEventListener('change', onCapacitySelectChange);
-      buttonSubmitElement.removeEventListener('click', onFormSubmitClick);
-      buttonResetElement.removeEventListener('click', onResetFormClick);
+
+      formElement.removeEventListener('change', onFormChange);
+      formElement.removeEventListener('submit', onFormSubmit);
+      formElement.addEventListener('reset', onFormReset);
     },
     setAddressValue: function (coords) {
       fieldAddressElement.setAttribute('value', coords);

@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var OFFERS_SHOW_LIMIT = 5;
+
   var createPinElement = function (offer) {
     var element = templatePinElement.cloneNode(true);
 
@@ -12,45 +14,39 @@
     return element;
   };
 
-  var createPins = function () {
+  var pinElements = [];
+
+  var createPins = function (offers) {
     var fragment = document.createDocumentFragment();
 
-    window.offers.generateOffers().forEach(function (offer, index) {
-      var element = createPinElement(offer);
-      var clickHandler = createPinClickHandler(offer);
+    offers
+      .slice(0, OFFERS_SHOW_LIMIT)
+      .forEach(function (offer) {
+        var element = createPinElement(offer);
 
-      mapPinsClickHandlers[index] = clickHandler;
+        pinElements.push(element);
 
-      element.addEventListener('click', clickHandler);
+        element.addEventListener('click', function () {
+          window.popup.create(offer);
+        });
+        fragment.appendChild(element);
+      });
 
-      fragment.appendChild(element);
-    });
-
-    return fragment;
+    mapPinsElement.appendChild(fragment);
   };
 
   var removePins = function () {
-    var pinsElements = document.querySelectorAll('.map__pin:not(.map__pin--main)');
-
-    Array.prototype.forEach.call(pinsElements, function (pinElement, index) {
-      pinElement.removeEventListener('click', mapPinsClickHandlers[index]);
+    pinElements.forEach(function (pinElement) {
       pinElement.remove();
     });
-
-    mapPinsClickHandlers = {};
+    pinElements = [];
   };
 
-  var createPinClickHandler = function (offer) {
-    return function () {
-      window.popup.openPopup(offer);
-    };
-  };
-
-  var mapPinsClickHandlers = {};
+  var mapPinsElement = document.querySelector('.map__pins');
   var templatePinElement = document.querySelector('#pin').content.querySelector('.map__pin');
 
   window.pins = {
-    createPins: createPins,
-    removePins: removePins
+    create: createPins,
+    remove: removePins
   };
 })();

@@ -3,15 +3,8 @@
 (function () {
   var mapElement = document.querySelector('.map');
 
-  var onFiltersChanged = function (filteredOffers) {
-    window.pins.remove();
-    window.pins.create(filteredOffers);
-  };
-
   var onGetOffersSuccess = function (offers) {
     window.pins.create(offers);
-
-    window.formFilter.activate(offers, onFiltersChanged);
   };
 
   var onGetOffersError = function () {
@@ -33,11 +26,11 @@
     window.messages.createErrorMessage();
   };
 
-  var onFormSubmit = function (data) {
+  var callbackFormSubmit = function (data) {
     window.backend.postOffer(data, onPostOfferSuccess, onPostOfferError);
   };
 
-  var onFormReset = function () {
+  var callbackFormReset = function () {
     window.popup.remove();
     window.pins.remove();
     window.mainPin.resetPosition();
@@ -49,13 +42,14 @@
     if (!isMapActive) {
       mapElement.classList.remove('map--faded');
       window.backend.getOffers(onGetOffersSuccess, onGetOffersError);
-      window.form.activate(onFormSubmit, onFormReset);
+      window.form.activate(callbackFormSubmit, callbackFormReset);
     }
 
     isMapActive = true;
-
     window.form.setAddressValue(mainPinPosition);
   };
 
   window.mainPin.activate(callbackMainPinMouseUp);
+  window.filter.activate();
 })();
+
