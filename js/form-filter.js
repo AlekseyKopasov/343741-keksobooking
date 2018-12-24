@@ -10,21 +10,20 @@
   var filterGuestsElement = filterFormElement.querySelector('#housing-guests');
   var filterFeaturesElement = filterFormElement.querySelector('#housing-features');
 
-  var filtrationOffers = function (offers) {
+  var getFilterFieldValue = function () {
     var selectedTypeElement = filterTypeElement.options[filterTypeElement.selectedIndex];
     var selectedPriceElement = filterPriceElement.options[filterPriceElement.selectedIndex];
     var selectedRoomsElement = filterRoomElement.options[filterRoomElement.selectedIndex];
     var selectedGuestsElement = filterGuestsElement.options[filterGuestsElement.selectedIndex];
     var selectedFeaturesElements = filterFeaturesElement.querySelectorAll('input:checked');
 
-    var filteredOffers = offers
-    .filter(selectedTypeElement)
-    .filter(selectedPriceElement)
-    .filter(selectedRoomsElement)
-    .filter(selectedGuestsElement)
-    .filter(selectedFeaturesElements);
+    return selectedTypeElement && selectedPriceElement && selectedRoomsElement && selectedGuestsElement && selectedFeaturesElements;
+  };
 
+  var filtrationOffers = function (offers) {
+    var filteredOffers = offers.filter(getFilterFieldValue);
     return filteredOffers;
+
   };
 
   var onFiltersChanged = function (offers) {
