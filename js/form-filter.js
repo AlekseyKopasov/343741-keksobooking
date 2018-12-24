@@ -11,7 +11,6 @@
   var filterGuestsElement = filterFormElement.querySelector('#housing-guests');
   var filterFeaturesElement = filterFormElement.querySelector('#housing-features');
 
-
   var filtrationOffers = function (offers) {
     var selectedTypeElement = filterTypeElement.options[filterTypeElement.selectedIndex];
     var selectedPriceElement = filterPriceElement.options[filterPriceElement.selectedIndex];
@@ -29,12 +28,20 @@
     return filteredOffers;
   };
 
-  var onFiltersChanged = function () {
-    filtrationOffers();
+  var onFiltersChanged = function (offers) {
+    filtrationOffers(offers);
   };
 
+  var createFilterIsActiveHandler = function (callbackFilterIsActive) {
+    return function () {
+      callbackFilterIsActive();
+    };
+  };
+
+  var onFilterIsActive;
+
   window.filter = {
-    activate: function () {
+    activate: function (callbackFilterData) {
       Array.prototype.forEach.call(filterInputElements, function (element) {
         element.removeAttribute('disabled');
       });
@@ -42,10 +49,10 @@
         element.removeAttribute('disabled');
       });
 
-      window.pins.remove();
-      window.popup.remove();
+      onFilterIsActive = createFilterIsActiveHandler(callbackFilterData);
 
       filterFormElement.addEventListener('change', onFiltersChanged);
+      filterFormElement.addEventListener('load', onFilterIsActive);
     },
     deactivate: function () {
       Array.prototype.forEach.call(filterInputElements, function (element) {
@@ -56,6 +63,7 @@
       });
 
       filterFormElement.removeEventListener('change', onFiltersChanged);
+      filterFormElement.removeEventListener('load', onFilterIsActive);
     }
   };
 })();

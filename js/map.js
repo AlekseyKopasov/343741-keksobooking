@@ -20,6 +20,7 @@
 
     isMapActive = false;
     mapElement.classList.add('map--faded');
+    window.filter.deactivate();
   };
 
   var onPostOfferError = function () {
@@ -36,6 +37,12 @@
     window.mainPin.resetPosition();
   };
 
+  var callbackFilterData = function (data) {
+    window.backend.postOffer(data, onPostOfferSuccess, onPostOfferError);
+    window.pins.remove();
+    window.popup.remove();
+  };
+
   var isMapActive = false;
 
   var callbackMainPinMouseUp = function (mainPinPosition) {
@@ -43,6 +50,7 @@
       mapElement.classList.remove('map--faded');
       window.backend.getOffers(onGetOffersSuccess, onGetOffersError);
       window.form.activate(callbackFormSubmit, callbackFormReset);
+      window.filter.activate(callbackFilterData);
     }
 
     isMapActive = true;
