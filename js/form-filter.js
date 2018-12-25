@@ -1,110 +1,108 @@
 'use strict';
 
 (function () {
-  var PriceRange = {
-    LOW: {
+  var FILTER_PRICE = {
+    low: {
       min: 0,
       max: 10000
     },
-    MIDDLE: {
+    middle: {
       min: 10000,
       max: 50000
     },
-    HIGH: {
+    high: {
       min: 50000,
       max: Infinity
     }
   };
+
   var filterFormElement = document.querySelector('.map__filters');
-  var filterInputElements = filterFormElement.querySelectorAll('input');
-  var filterSelectElements = filterFormElement.querySelectorAll('select');
-  // var filterTypeElement = filterFormElement.querySelector('#housing-type');
-  // var filterPriceElement = filterFormElement.querySelector('#housing-price');
-  // var filterRoomElement = filterFormElement.querySelector('#housing-rooms');
-  // var filterGuestsElement = filterFormElement.querySelector('#housing-guests');
+  var formInputElements = filterFormElement.querySelectorAll('input[type="checkbox"]');
+  var formSelectElements = filterFormElement.querySelectorAll('select');
+
+  var filterTypeElement = filterFormElement.querySelector('#housing-type');
+  var filterRoomElement = filterFormElement.querySelector('#housing-rooms');
+  var filterGuestsElement = filterFormElement.querySelector('#housing-guests');
+
+  var filterPriceElement = filterFormElement.querySelector('#housing-price');
   var filterFeaturesElement = filterFormElement.querySelector('#housing-features');
 
-  var getTypeValue = function (offerType, filterType) {
-    return offerType === 'any' || filterType === offerType.toString();
-  };
-
-  var getPriceValue = function (offerPrice, filterPrice) {
-    var getOfferPrice = function () {
-      if (offerPrice < PriceRange.LOW) {
-        return PriceRange.LOW;
-      } else if (offerPrice > PriceRange.HIGH) {
-        return PriceRange.HIGH;
-      } else {
-        return PriceRange.MIDDLE;
-      }
-    };
-    return filterPrice === 'any' || getOfferPrice(offerPrice);
-  };
-
-  var getFeaturesValue = function (offerFeatures, filterFeatures) {
-    return filterFeatures.every(function (feature) {
-      return offerFeatures.indexOf(feature) > -1;
+  var enableElements = function (elements) {
+    Array.prototype.forEach.call(elements, function (element) {
+      element.removeAttribute('disabled');
     });
   };
 
-  var filterData = Array.from(filterSelectElements).reduce(function (result, selectedOption) {
-    var optionName = selectedOption.feature;
-    result[optionName] = filterSelectElements.options[filterSelectElements.selectedIndex].value;
-
-    return result;
-  }, {});
-
-  filterData.features = Array.from(filterFeaturesElement)
-        .filter(function (checkedFeature) {
-          return checkedFeature.checked;
-        })
-        .map(function (checkedFeature) {
-          return checkedFeature.value;
-        });
-
-  var onFiltersChanged = function () {
-    var filteredOffers = filteredOffers.filter(function (loadOffer) {
-      return getTypeValue(loadOffer.offer.type, filterData.type) &&
-      getTypeValue(loadOffer.offer.rooms, filterData.rooms) &&
-      getTypeValue(loadOffer.offer.guests, filterData.guests) &&
-      getPriceValue(loadOffer.offer.price, filterData.price) &&
-      getFeaturesValue(loadOffer.offer.features, filterData.features);
+  var disableElements = function (elements) {
+    Array.prototype.forEach.call(elements, function (element) {
+      element.removeAttribute('disabled');
     });
   };
 
-  var createFilterIsActiveHandler = function (callbackFilterIsActive) {
-    return function () {
-      callbackFilterIsActive();
+  var filterOfferBySelect = function (filterElement, offer, fieldName) {
+    return filterElement.value === 'any' || filterElement.value === offer.offer[fieldName].toString();
+  };
+
+  var filterOfferByPrice = function (offer) {
+    var priceLimit = FILTER_PRICE[filterPriceElement.value];
+    return filterPriceElement.value === 'any' || offer.offer.price >= priceLimit.min && offer.offer.price <= priceLimit.max;
+  };
+
+  var filterOfferByFeatures = function (offer) {
+    var features = Array
+      .from(filterFeaturesElement)
+      .filter(function (checkedFeature) {
+        return checkedFeature.checked;
+      })
+      .reduce(function (accumulator, featureElement) {
+        accumulator.push(featureElement);
+        return accumulator;
+      }, []);
+
+    return offer.offer.features.every(function (feature) {
+      // debugger;
+      return features.indexOf(feature) !== -1;
+    });
+  };
+
+  var filter = function (offers) {
+
+    return offers.filter(function (offer) {
+
+      // console.log(filterOfferByFeatures(offer));
+
+      return filterOfferBySelect(filterTypeElement, offer, 'type') && // работает
+             filterOfferBySelect(filterRoomElement, offer, 'rooms') && // работает
+             filterOfferBySelect(filterGuestsElement, offer, 'guests') && // работает
+             filterOfferByPrice(offer) && // работает
+             filterOfferByFeatures(offer);
+    });
+
+  };
+
+  var createFilterFormHandler = function (onFilter, offers) {
+    return function (_evt) {
+      onFilter(filter(offers));
     };
   };
 
-  var onFilterIsActive;
+  var onFilterFormChange;
 
   window.filter = {
-    activate: function (callbackFilterData) {
-      Array.prototype.forEach.call(filterInputElements, function (element) {
-        element.removeAttribute('disabled');
-      });
-      Array.prototype.forEach.call(filterSelectElements, function (element) {
-        element.removeAttribute('disabled');
-      });
+    activate: function (offers, onFilter) {
+      enableElements(formInputElements);
+      enableElements(formSelectElements);
 
-      onFilterIsActive = createFilterIsActiveHandler(callbackFilterData);
+      onFilterFormChange = createFilterFormHandler(onFilter, offers);
 
-      filterFormElement.addEventListener('change', onFiltersChanged);
-      filterFormElement.addEventListener('load', onFilterIsActive);
+      filterFormElement.addEventListener('change', onFilterFormChange);
     },
 
     deactivate: function () {
-      Array.prototype.forEach.call(filterInputElements, function (element) {
-        element.setAttribute('disabled', '');
-      });
-      Array.prototype.forEach.call(filterSelectElements, function (element) {
-        element.setAttribute('disabled', '');
-      });
+      disableElements(formInputElements);
+      disableElements(formSelectElements);
 
-      filterFormElement.removeEventListener('change', onFiltersChanged);
-      filterFormElement.removeEventListener('load', onFilterIsActive);
+      filterFormElement.removeEventListener('change', onFilterFormChange);
     }
   };
 })();
