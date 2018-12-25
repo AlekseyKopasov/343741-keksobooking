@@ -17,7 +17,7 @@
     var selectedGuestsElement = filterGuestsElement.options[filterGuestsElement.selectedIndex];
     var selectedFeaturesElements = filterFeaturesElement.querySelectorAll('input:checked');
 
-    return selectedTypeElement && selectedPriceElement && selectedRoomsElement && selectedGuestsElement && selectedFeaturesElements;
+    return selectedTypeElement.value && selectedPriceElement.value && selectedRoomsElement.value && selectedGuestsElement.value && selectedFeaturesElements.value;
   };
 
   var filtrationOffers = function (offers) {

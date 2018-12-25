@@ -58,6 +58,6 @@
   };
 
   window.mainPin.activate(callbackMainPinMouseUp);
-  window.filter.activate();
+  window.filter.deactivate();
 })();
 
