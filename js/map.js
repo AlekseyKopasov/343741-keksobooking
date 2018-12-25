@@ -37,10 +37,11 @@
     window.mainPin.resetPosition();
   };
 
-  var callbackFilterData = function () {
+  var callbackFilterData = function (offers) {
     window.backend.getOffers(onGetOffersSuccess, onGetOffersError);
-    // window.pins.create();
-    // window.popup.remove();
+    window.pins.remove();
+    window.popup.remove();
+    window.pins.create(offers);
   };
 
   var isMapActive = false;
