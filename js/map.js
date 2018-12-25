@@ -37,9 +37,9 @@
     window.mainPin.resetPosition();
   };
 
-  var callbackFilterData = function (data) {
-    window.backend.postOffer(data, onPostOfferSuccess, onPostOfferError);
-    window.pins.remove();
+  var callbackFilterData = function () {
+    window.backend.getOffers(onGetOffersSuccess, onGetOffersError);
+    window.pins.create();
     window.popup.remove();
   };
 
