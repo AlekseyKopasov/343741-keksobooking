@@ -52,6 +52,7 @@
       filterFormElement.addEventListener('change', onFiltersChanged);
       filterFormElement.addEventListener('load', onFilterIsActive);
     },
+
     deactivate: function () {
       Array.prototype.forEach.call(filterInputElements, function (element) {
         element.setAttribute('disabled', '');
