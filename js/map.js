@@ -39,8 +39,8 @@
 
   var callbackFilterData = function () {
     window.backend.getOffers(onGetOffersSuccess, onGetOffersError);
-    window.pins.create();
-    window.popup.remove();
+    // window.pins.create();
+    // window.popup.remove();
   };
 
   var isMapActive = false;

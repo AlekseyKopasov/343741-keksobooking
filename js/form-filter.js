@@ -1,6 +1,20 @@
 'use strict';
 
 (function () {
+  var PriceRange = {
+    LOW: {
+      min: 0,
+      max: 10000
+    },
+    MIDDLE: {
+      min: 10000,
+      max: 50000
+    },
+    HIGH: {
+      min: 50000,
+      max: Infinity
+    }
+  };
   var filterFormElement = document.querySelector('.map__filters');
   var filterInputElements = filterFormElement.querySelectorAll('input');
   var filterSelectElements = filterFormElement.querySelectorAll('select');
@@ -10,26 +24,33 @@
   var filterGuestsElement = filterFormElement.querySelector('#housing-guests');
   var filterFeaturesElement = filterFormElement.querySelector('#housing-features');
 
-  var getFilterFieldValue = function () {
-    var selectedTypeElement = filterTypeElement.options[filterTypeElement.selectedIndex];
-    var selectedPriceElement = filterPriceElement.options[filterPriceElement.selectedIndex];
-    var selectedRoomsElement = filterRoomElement.options[filterRoomElement.selectedIndex];
-    var selectedGuestsElement = filterGuestsElement.options[filterGuestsElement.selectedIndex];
-    var selectedFeaturesElements = filterFeaturesElement.querySelectorAll('input:checked');
-
-    return selectedTypeElement.value && selectedPriceElement.value && selectedRoomsElement.value && selectedGuestsElement.value && selectedFeaturesElements.value;
+  var getTypeValue = function (offer, index) {
+    return filterTypeElement.value === 'any' ? true : filterTypeElement.value === offer[index].toString();
   };
 
-  var filtrationOffers = function (offers) {
-    var filteredOffers = offers.filter(function (offer) {
-      offer.getFilterFieldValue();
-    });
-    return filteredOffers;
-
+  var getPriceValue = function (offer) {
+    return PriceRange ? filterPriceElement.offer.price >= PriceRange.min && offer.offer.price <= PriceRange.max : true;
   };
 
-  var onFiltersChanged = function (offers) {
-    filtrationOffers(offers);
+  var getRoomsValue = function (offer, index) {
+    return filterRoomElement.value === 'any' ? true : filterRoomElement.value === offer[index].toString();
+  };
+
+  var getGuestsValue = function (offer, index) {
+    return filterGuestsElement.value === 'any' ? true : filterGuestsElement.value === offer[index].toString();
+  };
+
+  var getFeaturesValue = function (offer, index) {
+    return filterFeaturesElement.value === 'any' ? true : filterFeaturesElement.value === offer[index].toString();
+  };
+
+  var onFiltersChanged = function () {
+    var filteredOffers = filteredOffers
+    .filter(getTypeValue)
+    .filter(getPriceValue)
+    .filter(getRoomsValue)
+    .filter(getGuestsValue)
+    .filter(getFeaturesValue);
   };
 
   var createFilterIsActiveHandler = function (callbackFilterIsActive) {
