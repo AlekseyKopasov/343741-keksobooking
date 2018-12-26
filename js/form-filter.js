@@ -25,7 +25,6 @@
   var filterGuestsElement = filterFormElement.querySelector('#housing-guests');
 
   var filterPriceElement = filterFormElement.querySelector('#housing-price');
-  var filterFeaturesElement = filterFormElement.querySelector('#housing-features');
 
   var enableElements = function (elements) {
     Array.prototype.forEach.call(elements, function (element) {
@@ -49,19 +48,19 @@
   };
 
   var filterOfferByFeatures = function (offer) {
+    var checkboxFeaturesElements = Array.from(filterFormElement.querySelectorAll('input[type="checkbox"]'));
     var features = Array
-      .from(filterFeaturesElement)
-      .filter(function (checkedFeature) {
-        return checkedFeature.checked;
-      })
-      .reduce(function (accumulator, featureElement) {
-        accumulator.push(featureElement);
-        return accumulator;
-      }, []);
+    .from(checkboxFeaturesElements)
+    .filter(function (checkedFeature) {
+      return checkedFeature.checked;
+    })
+    .reduce(function (accumulator, featureElement) {
+      accumulator.push(featureElement);
+      return accumulator;
+    }, []);
 
-    return offer.offer.features.every(function (feature) {
-      // debugger;
-      return features.indexOf(feature) !== -1;
+    return features.every(function (feature) {
+      return offer.offer.features.indexOf(feature.value) !== -1;
     });
   };
 
@@ -69,13 +68,11 @@
 
     return offers.filter(function (offer) {
 
-      // console.log(filterOfferByFeatures(offer));
-
-      return filterOfferBySelect(filterTypeElement, offer, 'type') && // работает
-             filterOfferBySelect(filterRoomElement, offer, 'rooms') && // работает
-             filterOfferBySelect(filterGuestsElement, offer, 'guests') && // работает
-             filterOfferByPrice(offer) && // работает
-             filterOfferByFeatures(offer);
+      return filterOfferBySelect(filterTypeElement, offer, 'type') &&
+      filterOfferBySelect(filterRoomElement, offer, 'rooms') &&
+      filterOfferBySelect(filterGuestsElement, offer, 'guests') &&
+      filterOfferByPrice(offer) &&
+      filterOfferByFeatures(offer);
     });
 
   };

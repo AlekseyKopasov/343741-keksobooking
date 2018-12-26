@@ -4,7 +4,6 @@
   var mapElement = document.querySelector('.map');
 
   var onFilter = function (filteredOffers) {
-    // debugger;
     window.popup.remove();
     window.pins.remove();
     window.pins.create(filteredOffers);
