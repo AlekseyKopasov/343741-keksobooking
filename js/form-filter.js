@@ -16,6 +16,8 @@
     }
   };
 
+  var DEBOUNCE_INTERVAL = 1500;
+
   var filterFormElement = document.querySelector('.map__filters');
   var formInputElements = filterFormElement.querySelectorAll('input[type="checkbox"]');
   var formSelectElements = filterFormElement.querySelectorAll('select');
@@ -84,6 +86,14 @@
   };
 
   var onFilterFormChange;
+  var lastTimeout;
+
+  var debounceFilter = function (callback) {
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(callback, DEBOUNCE_INTERVAL);
+  };
 
   window.filter = {
     activate: function (offers, onFilter) {
@@ -92,7 +102,7 @@
 
       onFilterFormChange = createFilterFormHandler(onFilter, offers);
 
-      filterFormElement.addEventListener('change', onFilterFormChange);
+      filterFormElement.addEventListener('change', debounceFilter(onFilterFormChange));
     },
 
     deactivate: function () {
