@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var FILTER_PRICE = {
+  var FilterPrice = {
     low: {
       min: 0,
       max: 10000
@@ -16,7 +16,9 @@
     }
   };
 
-  var DEBOUNCE_INTERVAL = 1500;
+  var DEBOUNCE_INTERVAL = 1000;
+
+  var FILTER_FIELD_DEFAULT_VALUE = 'any';
 
   var filterFormElement = document.querySelector('.map__filters');
   var formInputElements = filterFormElement.querySelectorAll('input[type="checkbox"]');
@@ -41,12 +43,12 @@
   };
 
   var filterOfferBySelect = function (filterElement, offer, fieldName) {
-    return filterElement.value === 'any' || filterElement.value === offer.offer[fieldName].toString();
+    return filterElement.value === FILTER_FIELD_DEFAULT_VALUE || filterElement.value === offer.offer[fieldName].toString();
   };
 
   var filterOfferByPrice = function (offer) {
-    var priceLimit = FILTER_PRICE[filterPriceElement.value];
-    return filterPriceElement.value === 'any' || offer.offer.price >= priceLimit.min && offer.offer.price <= priceLimit.max;
+    var priceLimit = FilterPrice[filterPriceElement.value];
+    return filterPriceElement.value === FILTER_FIELD_DEFAULT_VALUE || offer.offer.price >= priceLimit.min && offer.offer.price <= priceLimit.max;
   };
 
   var filterOfferByFeatures = function (offer) {
@@ -55,11 +57,7 @@
     .from(checkboxFeaturesElements)
     .filter(function (checkedFeature) {
       return checkedFeature.checked;
-    })
-    .reduce(function (accumulator, featureElement) {
-      accumulator.push(featureElement);
-      return accumulator;
-    }, []);
+    });
 
     return features.every(function (feature) {
       return offer.offer.features.indexOf(feature.value) !== -1;
@@ -80,20 +78,13 @@
   };
 
   var createFilterFormHandler = function (onFilter, offers) {
-    return function (_evt) {
+    return function () {
       onFilter(filter(offers));
     };
   };
 
-  var onFilterFormChange;
   var lastTimeout;
-
-  var debounceFilter = function (callback) {
-    if (lastTimeout) {
-      window.clearTimeout(lastTimeout);
-    }
-    lastTimeout = window.setTimeout(callback, DEBOUNCE_INTERVAL);
-  };
+  var onFilterFormChange;
 
   window.filter = {
     activate: function (offers, onFilter) {
@@ -102,7 +93,12 @@
 
       onFilterFormChange = createFilterFormHandler(onFilter, offers);
 
-      filterFormElement.addEventListener('change', debounceFilter(onFilterFormChange));
+      filterFormElement.addEventListener('change', function () {
+        if (lastTimeout) {
+          window.clearTimeout(lastTimeout);
+        }
+        lastTimeout = window.setTimeout(onFilterFormChange, DEBOUNCE_INTERVAL);
+      });
     },
 
     deactivate: function () {
