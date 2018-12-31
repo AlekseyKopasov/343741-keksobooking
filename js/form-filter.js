@@ -79,7 +79,10 @@
 
   var createFilterFormHandler = function (onFilter, offers) {
     return function () {
-      onFilter(filter(offers));
+      if (lastTimeout) {
+        window.clearTimeout(lastTimeout);
+      }
+      lastTimeout = window.setTimeout(onFilter(filter(offers)), DEBOUNCE_INTERVAL);
     };
   };
 
@@ -93,12 +96,7 @@
 
       onFilterFormChange = createFilterFormHandler(onFilter, offers);
 
-      filterFormElement.addEventListener('change', function () {
-        if (lastTimeout) {
-          window.clearTimeout(lastTimeout);
-        }
-        lastTimeout = window.setTimeout(onFilterFormChange, DEBOUNCE_INTERVAL);
-      });
+      filterFormElement.addEventListener('change', onFilterFormChange);
     },
 
     deactivate: function () {
