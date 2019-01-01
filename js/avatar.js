@@ -13,7 +13,7 @@
     if (matches) {
       var reader = new FileReader();
       reader.addEventListener('load', function () {
-        var imageAvatarElement = imagePreviewElement.querySelector('img');
+        // var imageAvatarElement = fieldPreviewElement.querySelector('img');
         imageAvatarElement.src = reader.result;
       });
       reader.readAsDataURL(fileImage);
@@ -29,17 +29,41 @@
     if (matches) {
       var reader = new FileReader();
 
-      reader.addEventListener('load', function () {
-        var previewImage = photoPreviewElement.cloneNode(false);
-        var imgElement = document.createElement('img');
-        imgElement.setAttribute('style', 'display: block; margin: 0 auto; max-height: 70px; max-width: 70px;');
-        imgElement.src = reader.result;
-        previewImage.appendChild(imgElement);
-        imagePhotoContainerElement.insertBefore(previewImage, photoPreviewElement);
+      reader.addEventListener('load', function (evt) {
+        if (!photoPreviewElement.hasChildNodes()) {
+          photoPreviewElement.remove();
+        }
+
+        var photoElement = document.createElement('div');
+        photoElement.classList.add('ad-form__photo');
+
+        var imageElement = document.createElement('img');
+        imageElement.src = evt.target.result;
+        imageElement.alt = 'Фото жилья';
+        imageElement.style.maxWidth = '70px';
+        imageElement.style.maxHeight = '70px';
+
+        photoElement.appendChild(imageElement);
+        containerPhotoElement.appendChild(photoElement);
       });
 
       reader.readAsDataURL(fileImage);
     }
+  };
+
+  var removeAvatar = function () {
+    imageAvatarElement.src = 'img/muffin-grey.svg';
+  };
+
+  var removePreviews = function () {
+    var previewImagesElements = document.querySelectorAll('.ad-form__photo');
+    Array.prototype.forEach.call(previewImagesElements, function (preview) {
+      preview.remove();
+    });
+
+    var emptyElement = document.createElement('div');
+    emptyElement.classList.add('ad-form__photo');
+    containerPhotoElement.appendChild(emptyElement);
   };
 
   var onUserAvatarChange = function () {
@@ -52,11 +76,14 @@
     chooseOfferImage(previewImage);
   };
 
+  var containerPhotoElement = document.querySelector('.ad-form__photo-container');
+
   var inputAvatarElement = document.querySelector('#avatar');
-  var imagePreviewElement = document.querySelector('.ad-form-header__preview');
-  var photoPreviewElement = document.querySelector('.ad-form__photo');
-  var imagePhotoContainerElement = document.querySelector('.ad-form__photo-container');
   var inputPreviewElement = document.querySelector('.ad-form__upload input[type=file]');
+
+  var fieldPreviewElement = document.querySelector('.ad-form-header__preview');
+  var imageAvatarElement = fieldPreviewElement.querySelector('img');
+  var photoPreviewElement = containerPhotoElement.querySelector('.ad-form__photo');
 
   window.avatar = {
     activate: function () {
@@ -66,6 +93,11 @@
     deactivate: function () {
       inputAvatarElement.removeEventListener('change', onUserAvatarChange);
       inputPreviewElement.addEventListener('change', onOfferPreviewChange);
+    },
+    remove: function () {
+      removeAvatar();
+      removePreviews();
     }
   };
+  // TODO Реализовать D&D для превью
 })();

@@ -42,6 +42,7 @@
     window.popup.remove();
     window.pins.remove();
     window.mainPin.resetPosition();
+    window.avatar.remove();
   };
 
   var isMapActive = false;
