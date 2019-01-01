@@ -3,7 +3,14 @@
 (function () {
   var mapElement = document.querySelector('.map');
 
+  var onFilter = function (filteredOffers) {
+    window.popup.remove();
+    window.pins.remove();
+    window.pins.create(filteredOffers);
+  };
+
   var onGetOffersSuccess = function (offers) {
+    window.filter.activate(offers, onFilter);
     window.pins.create(offers);
   };
 
@@ -20,6 +27,7 @@
 
     isMapActive = false;
     mapElement.classList.add('map--faded');
+    window.filter.deactivate();
   };
 
   var onPostOfferError = function () {
@@ -50,5 +58,6 @@
   };
 
   window.mainPin.activate(callbackMainPinMouseUp);
+  window.filter.deactivate();
 })();
 
