@@ -6,7 +6,6 @@
   var onFilter = function (filteredOffers) {
     window.popup.remove();
     window.pins.remove();
-    // window.debounce(window.pins.create(filteredOffers));
     window.pins.create(filteredOffers);
   };
 

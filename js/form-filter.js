@@ -57,24 +57,21 @@
     .from(checkboxFeaturesElements)
     .filter(function (checkedFeature) {
       return checkedFeature.checked;
-    });
-
-    return features.every(function (feature) {
+    })
+    .every(function (feature) {
       return offer.offer.features.indexOf(feature.value) !== -1;
     });
+    return features;
   };
 
   var filter = function (offers) {
-
     return offers.filter(function (offer) {
-
       return filterOfferBySelect(filterTypeElement, offer, 'type') &&
       filterOfferBySelect(filterRoomElement, offer, 'rooms') &&
       filterOfferBySelect(filterGuestsElement, offer, 'guests') &&
       filterOfferByPrice(offer) &&
       filterOfferByFeatures(offer);
     });
-
   };
 
   var createFilterFormHandler = function (onFilter, offers) {
@@ -85,7 +82,6 @@
       lastTimeout = window.setTimeout(function () {
         onFilter(filter(offers));
       }, DEBOUNCE_INTERVAL);
-      // lastTimeout = window.setTimeout(onFilter(filter(offers)), DEBOUNCE_INTERVAL);
     };
   };
 
