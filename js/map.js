@@ -51,6 +51,7 @@
       mapElement.classList.remove('map--faded');
       window.backend.getOffers(onGetOffersSuccess, onGetOffersError);
       window.form.activate(callbackFormSubmit, callbackFormReset);
+      window.avatar.activate();
     }
 
     isMapActive = true;
@@ -59,4 +60,5 @@
 
   window.mainPin.activate(callbackMainPinMouseUp);
   window.filter.deactivate();
+  window.avatar.deactivate();
 })();
