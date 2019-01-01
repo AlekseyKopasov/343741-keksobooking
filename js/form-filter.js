@@ -16,7 +16,7 @@
     }
   };
 
-  var DEBOUNCE_INTERVAL = 1000;
+  var DEBOUNCE_INTERVAL = 600;
 
   var FILTER_FIELD_DEFAULT_VALUE = 'any';
 
@@ -82,7 +82,10 @@
       if (lastTimeout) {
         window.clearTimeout(lastTimeout);
       }
-      lastTimeout = window.setTimeout(onFilter(filter(offers)), DEBOUNCE_INTERVAL);
+      lastTimeout = window.setTimeout(function () {
+        onFilter(filter(offers));
+      }, DEBOUNCE_INTERVAL);
+      // lastTimeout = window.setTimeout(onFilter(filter(offers)), DEBOUNCE_INTERVAL);
     };
   };
 
