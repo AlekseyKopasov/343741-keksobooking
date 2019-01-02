@@ -3,8 +3,21 @@
 (function () {
 
   var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+  var DEFAULT_AVATAR = 'img/muffin-grey.svg';
 
-  var chooseUserAvater = function (fileImage) {
+  var ImageStyle = {
+    WIDTH: '70px',
+    HEIGHT: '70px',
+    BORDER_RADIUS: '5px',
+    ALT: 'Фото жилья'
+  };
+
+  var DropZoneStyle = {
+    COLOR: '#ff5635',
+    BORDER: '1px solid #c7c7c7'
+  };
+
+  var chooseUserAvatar = function (fileImage) {
     var fileImageName = fileImage.name.toLowerCase();
     var matches = FILE_TYPES.some(function (imageFormat) {
       return fileImageName.endsWith(imageFormat);
@@ -13,7 +26,6 @@
     if (matches) {
       var reader = new FileReader();
       reader.addEventListener('load', function () {
-        // var imageAvatarElement = fieldPreviewElement.querySelector('img');
         imageAvatarElement.src = reader.result;
       });
       reader.readAsDataURL(fileImage);
@@ -34,17 +46,18 @@
           photoPreviewElement.remove();
         }
 
-        var photoElement = document.createElement('div');
-        photoElement.classList.add('ad-form__photo');
+        var photoWrapElement = document.createElement('div');
+        photoWrapElement.classList.add('ad-form__photo');
 
         var imageElement = document.createElement('img');
         imageElement.src = evt.target.result;
-        imageElement.alt = 'Фото жилья';
-        imageElement.style.maxWidth = '70px';
-        imageElement.style.maxHeight = '70px';
+        imageElement.alt = ImageStyle.ALT;
+        imageElement.style.maxWidth = ImageStyle.WIDTH;
+        imageElement.style.maxHeight = ImageStyle.HEIGHT;
+        imageElement.style.borderRadius = ImageStyle.BORDER_RADIUS;
 
-        photoElement.appendChild(imageElement);
-        containerPhotoElement.appendChild(photoElement);
+        photoWrapElement.appendChild(imageElement);
+        containerPhotoElement.appendChild(photoWrapElement);
       });
 
       reader.readAsDataURL(fileImage);
@@ -52,7 +65,7 @@
   };
 
   var removeAvatar = function () {
-    imageAvatarElement.src = 'img/muffin-grey.svg';
+    imageAvatarElement.src = DEFAULT_AVATAR;
   };
 
   var removePreviews = function () {
@@ -66,9 +79,43 @@
     containerPhotoElement.appendChild(emptyElement);
   };
 
+  var createDropZoneHandler = function (dropZone, dropImageFunction) {
+    dropZone.addEventListener('dragover', function (evt) {
+      evt.preventDefault();
+      dropZone.style.color = DropZoneStyle.COLOR;
+      dropZone.style.border = DropZoneStyle.BORDER;
+    });
+
+    dropZone.addEventListener('dragleave', function (evt) {
+      evt.preventDefault();
+      dropZone.removeAttribute('style');
+    });
+
+    dropZone.addEventListener('drop', function (evt) {
+      evt.preventDefault();
+      dropZone.removeAttribute('style');
+
+      var fileImage = evt.dataTransfer.files[0];
+      dropImageFunction(fileImage);
+    });
+  };
+
+  var activateAvatarDropZone = function () {
+    var dropZone = document.querySelector('.ad-form-header__drop-zone');
+    createDropZoneHandler(dropZone, chooseUserAvatar);
+  };
+  activateAvatarDropZone();
+
+  var activatePreviewDropZone = function () {
+    var dropZone = document.querySelector('.ad-form__drop-zone');
+    createDropZoneHandler(dropZone, chooseOfferImage);
+  };
+  activatePreviewDropZone();
+
+
   var onUserAvatarChange = function () {
     var fileImage = inputAvatarElement.files[0];
-    chooseUserAvater(fileImage);
+    chooseUserAvatar(fileImage);
   };
 
   var onOfferPreviewChange = function () {
@@ -82,8 +129,8 @@
   var inputPreviewElement = document.querySelector('.ad-form__upload input[type=file]');
 
   var fieldPreviewElement = document.querySelector('.ad-form-header__preview');
-  var imageAvatarElement = fieldPreviewElement.querySelector('img');
   var photoPreviewElement = containerPhotoElement.querySelector('.ad-form__photo');
+  var imageAvatarElement = fieldPreviewElement.querySelector('img');
 
   window.avatar = {
     activate: function () {
@@ -99,5 +146,4 @@
       removePreviews();
     }
   };
-  // TODO Реализовать D&D для превью
 })();
