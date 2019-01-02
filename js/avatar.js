@@ -4,6 +4,7 @@
 
   var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
   var DEFAULT_AVATAR = 'img/muffin-grey.svg';
+  var DROP_EFFECT = 'move';
 
   var ImageStyle = {
     WIDTH: '70px',
@@ -111,6 +112,70 @@
     createDropZoneHandler(dropZone, chooseOfferImage);
   };
   activatePreviewDropZone();
+
+  function sortablePreview(rootElement, onUpdate) {
+    var dragElement;
+    var nextElement;
+
+    // Делаем всех детей перетаскиваемыми
+    [].slice.call(rootElement.children).forEach(function (itemElement) {
+      itemElement.draggable = true;
+    });
+
+    // Фнукция отвечающая за сортировку
+    function dragOver(evt) {
+      evt.preventDefault();
+      evt.dataTransfer.dropEffect = DROP_EFFECT;
+
+      var target = evt.target;
+      if (target && target !== dragElement && target.nodeName === 'DIV') {
+        // Сортируем
+        rootElement.insertBefore(dragElement, rootElement.children[0] !== target && target.nextSibling || target);
+      }
+    }
+
+    // Окончание сортировки
+    function dragEnd(evt) {
+      evt.preventDefault();
+
+      dragElement.classList.remove('hidden');
+      rootElement.removeEventListener('dragover', dragOver, false);
+      rootElement.removeEventListener('dragend', dragEnd, false);
+
+      if (nextElement !== dragElement.nextSibling) {
+        // Сообщаем об окончании сортировки
+        onUpdate(dragElement);
+      }
+    }
+
+    // Начало сортировки
+    rootElement.addEventListener('dragstart', function (evt) {
+      dragElement = evt.target; // Запоминаем элемент который будет перемещать
+      nextElement = dragElement.nextSibling;
+
+      // Ограничиваем тип перетаскивания
+      evt.dataTransfer.effectAllowed = DROP_EFFECT;
+      evt.dataTransfer.setData('text/plain', dragElement.textContent);
+
+      // Пописываемся на события при dnd
+      rootElement.addEventListener('dragover', dragOver, false);
+      rootElement.addEventListener('dragend', dragEnd, false);
+
+      setTimeout(function () {
+        // Если выполнить данное действие без setTimeout, то
+        // перетаскиваемый объект, будет иметь этот класс.
+        dragElement.classList.add('hidden');
+      }, 0);
+    }, false);
+  }
+
+  // Используем
+  sortablePreview(document.querySelector('.ad-form__photo-container'), function (item) {
+    // eslint-disable-next-line no-console
+    console.log(item);
+  });
+
+  // ==============================================
 
 
   var onUserAvatarChange = function () {
