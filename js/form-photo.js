@@ -6,7 +6,13 @@
   var DEFAULT_AVATAR = 'img/muffin-grey.svg';
   var DROP_EFFECT = 'move';
 
-  var ImageStyle = {
+  var AvatarImageStyle = {
+    WIDTH: '40px',
+    HEIGHT: '44px',
+    ALT: 'Аватар пользователя'
+  };
+
+  var PhotoImageStyle = {
     WIDTH: '70px',
     HEIGHT: '70px',
     BORDER_RADIUS: '5px',
@@ -16,6 +22,14 @@
   var DropZoneStyle = {
     COLOR: '#ff5635',
     BORDER: '1px solid #c7c7c7'
+  };
+
+  var addImageStyle = function (imageDropElement, ImageStyle) {
+    imageDropElement.alt = ImageStyle.ALT;
+    imageDropElement.style.width = ImageStyle.WIDTH;
+    imageDropElement.style.height = ImageStyle.HEIGHT;
+    imageDropElement.style.maxWidth = ImageStyle.WIDTH;
+    imageDropElement.style.maxHeight = ImageStyle.HEIGHT;
   };
 
   var chooseUserAvatar = function (fileImage) {
@@ -28,6 +42,7 @@
       var reader = new FileReader();
       reader.addEventListener('load', function () {
         avatarImageElement.src = reader.result;
+        addImageStyle(avatarImageElement, AvatarImageStyle);
       });
       reader.readAsDataURL(fileImage);
     }
@@ -52,10 +67,7 @@
 
         var imageElement = document.createElement('img');
         imageElement.src = evt.target.result;
-        imageElement.alt = ImageStyle.ALT;
-        imageElement.style.maxWidth = ImageStyle.WIDTH;
-        imageElement.style.maxHeight = ImageStyle.HEIGHT;
-        imageElement.style.borderRadius = ImageStyle.BORDER_RADIUS;
+        addImageStyle(imageElement, PhotoImageStyle);
 
         photoWrapElement.appendChild(imageElement);
         photoContainerElement.appendChild(photoWrapElement);
@@ -216,6 +228,7 @@
     deactivate: function () {
       deactivateDropZone(avatarDropZoneElement);
       deactivateDropZone(photoDropZoneElement);
+
       avatarInputElement.removeEventListener('change', onUserAvatarChange);
       photoInputElement.removeEventListener('change', onOfferPreviewChange);
     },
