@@ -42,7 +42,7 @@
     window.popup.remove();
     window.pins.remove();
     window.mainPin.resetPosition();
-    window.avatar.remove();
+    window.formPhoto.reset();
   };
 
   var isMapActive = false;
@@ -52,7 +52,7 @@
       mapElement.classList.remove('map--faded');
       window.backend.getOffers(onGetOffersSuccess, onGetOffersError);
       window.form.activate(callbackFormSubmit, callbackFormReset);
-      window.avatar.activate();
+      window.formPhoto.activate();
     }
 
     isMapActive = true;
@@ -61,5 +61,5 @@
 
   window.mainPin.activate(callbackMainPinMouseUp);
   window.filter.deactivate();
-  window.avatar.deactivate();
+  window.formPhoto.deactivate();
 })();

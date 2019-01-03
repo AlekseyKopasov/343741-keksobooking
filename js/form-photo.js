@@ -27,7 +27,7 @@
     if (matches) {
       var reader = new FileReader();
       reader.addEventListener('load', function () {
-        imageAvatarElement.src = reader.result;
+        avatarImageElement.src = reader.result;
       });
       reader.readAsDataURL(fileImage);
     }
@@ -43,8 +43,8 @@
       var reader = new FileReader();
 
       reader.addEventListener('load', function (evt) {
-        if (!photoPreviewElement.hasChildNodes()) {
-          photoPreviewElement.remove();
+        if (!photoWrapperElement.hasChildNodes()) {
+          photoWrapperElement.remove();
         }
 
         var photoWrapElement = document.createElement('div');
@@ -58,29 +58,29 @@
         imageElement.style.borderRadius = ImageStyle.BORDER_RADIUS;
 
         photoWrapElement.appendChild(imageElement);
-        containerPhotoElement.appendChild(photoWrapElement);
+        photoContainerElement.appendChild(photoWrapElement);
       });
 
       reader.readAsDataURL(fileImage);
     }
   };
 
-  var removeAvatar = function () {
-    imageAvatarElement.src = DEFAULT_AVATAR;
+  var resetAvatar = function () {
+    avatarImageElement.src = DEFAULT_AVATAR;
   };
 
-  var removePreviews = function () {
-    var previewImagesElements = document.querySelectorAll('.ad-form__photo');
-    Array.prototype.forEach.call(previewImagesElements, function (preview) {
+  var resetPreviewsPhoto = function () {
+    var photoWrappersElements = document.querySelectorAll('.ad-form__photo');
+    Array.prototype.forEach.call(photoWrappersElements, function (preview) {
       preview.remove();
     });
 
     var emptyElement = document.createElement('div');
     emptyElement.classList.add('ad-form__photo');
-    containerPhotoElement.appendChild(emptyElement);
+    photoContainerElement.appendChild(emptyElement);
   };
 
-  var createDropZoneHandler = function (dropZone, dropImageFunction) {
+  var activateDropZone = function (dropZone, onDrop) {
     dropZone.addEventListener('dragover', function (evt) {
       evt.preventDefault();
       dropZone.style.color = DropZoneStyle.COLOR;
@@ -97,21 +97,26 @@
       dropZone.removeAttribute('style');
 
       var fileImage = evt.dataTransfer.files[0];
-      dropImageFunction(fileImage);
+      onDrop(fileImage);
     });
   };
 
-  var activateAvatarDropZone = function () {
-    var dropZone = document.querySelector('.ad-form-header__drop-zone');
-    createDropZoneHandler(dropZone, chooseUserAvatar);
+  var deactivateDropZone = function (dropZone) {
+    dropZone.removeEventListener('dragover', function (evt) {
+      evt.preventDefault();
+      dropZone.removeAttribute('style');
+    });
+    dropZone.removeEventListener('dragleave', function (evt) {
+      evt.preventDefault();
+      dropZone.removeAttribute('style');
+    });
+    dropZone.removeEventListener('drop', function (evt) {
+      evt.preventDefault();
+      dropZone.removeAttribute('style');
+    });
   };
-  activateAvatarDropZone();
 
-  var activatePreviewDropZone = function () {
-    var dropZone = document.querySelector('.ad-form__drop-zone');
-    createDropZoneHandler(dropZone, chooseOfferImage);
-  };
-  activatePreviewDropZone();
+  // ==========================================================
 
   function sortablePreview(rootElement, onUpdate) {
     var dragElement;
@@ -119,7 +124,8 @@
 
     // Делаем всех детей перетаскиваемыми
     [].slice.call(rootElement.children).forEach(function (itemElement) {
-      itemElement.draggable = true;
+      itemElement.setAttribute('draggable', 'true');
+      // itemElement.draggable = true;
     });
 
     // Фнукция отвечающая за сортировку
@@ -179,36 +185,43 @@
 
 
   var onUserAvatarChange = function () {
-    var fileImage = inputAvatarElement.files[0];
+    var fileImage = avatarInputElement.files[0];
     chooseUserAvatar(fileImage);
   };
 
   var onOfferPreviewChange = function () {
-    var previewImage = inputPreviewElement.files[0];
+    var previewImage = photoInputElement.files[0];
     chooseOfferImage(previewImage);
   };
 
-  var containerPhotoElement = document.querySelector('.ad-form__photo-container');
+  var avatarInputElement = document.querySelector('#avatar');
+  var avatarWrapperElement = document.querySelector('.ad-form-header__preview');
+  var avatarImageElement = avatarWrapperElement.querySelector('img');
+  var avatarDropZoneElement = document.querySelector('.ad-form-header__drop-zone');
 
-  var inputAvatarElement = document.querySelector('#avatar');
-  var inputPreviewElement = document.querySelector('.ad-form__upload input[type=file]');
+  var photoDropZoneElement = document.querySelector('.ad-form__drop-zone');
+  var photoInputElement = document.querySelector('.ad-form__upload input[type=file]');
+  var photoContainerElement = document.querySelector('.ad-form__photo-container');
+  var photoWrapperElement = photoContainerElement.querySelector('.ad-form__photo');
 
-  var fieldPreviewElement = document.querySelector('.ad-form-header__preview');
-  var photoPreviewElement = containerPhotoElement.querySelector('.ad-form__photo');
-  var imageAvatarElement = fieldPreviewElement.querySelector('img');
 
-  window.avatar = {
+  window.formPhoto = {
     activate: function () {
-      inputAvatarElement.addEventListener('change', onUserAvatarChange);
-      inputPreviewElement.addEventListener('change', onOfferPreviewChange);
+      activateDropZone(avatarDropZoneElement, chooseUserAvatar);
+      activateDropZone(photoDropZoneElement, chooseOfferImage);
+
+      avatarInputElement.addEventListener('change', onUserAvatarChange);
+      photoInputElement.addEventListener('change', onOfferPreviewChange);
     },
     deactivate: function () {
-      inputAvatarElement.removeEventListener('change', onUserAvatarChange);
-      inputPreviewElement.addEventListener('change', onOfferPreviewChange);
+      deactivateDropZone(avatarDropZoneElement);
+      deactivateDropZone(photoDropZoneElement);
+      avatarInputElement.removeEventListener('change', onUserAvatarChange);
+      photoInputElement.removeEventListener('change', onOfferPreviewChange);
     },
-    remove: function () {
-      removeAvatar();
-      removePreviews();
+    reset: function () {
+      resetAvatar();
+      resetPreviewsPhoto();
     }
   };
 })();
