@@ -92,18 +92,6 @@
     photoContainerElement.appendChild(emptyElement);
   };
 
-  var activateDropZone = function (dropZone) {
-    dropZone.addEventListener('dragover', onDropZoneDragover);
-    dropZone.addEventListener('dragleave', onDropZoneDrag);
-    dropZone.addEventListener('drop', onDropZoneDrop);
-  };
-
-  var deactivateDropZone = function (dropZone) {
-    dropZone.removeEventListener('dragover', onDropZoneDrag);
-    dropZone.removeEventListener('dragleave', onDropZoneDrag);
-    dropZone.removeEventListener('drop', onDropZoneDrag);
-  };
-
   var testDragSorting = function () {
     var dragging = null;
 
@@ -176,15 +164,25 @@
 
   window.formPhoto = {
     activate: function () {
-      activateDropZone(avatarDropZoneElement, chooseUserAvatar);
-      activateDropZone(photoDropZoneElement, chooseOfferImage);
+
+      avatarDropZoneElement.addEventListener('dragover', onDropZoneDragover);
+      avatarDropZoneElement.addEventListener('dragleave', onDropZoneDrag);
+      avatarDropZoneElement.addEventListener('drop', onDropZoneDrop);
+      photoDropZoneElement.addEventListener('dragover', onDropZoneDragover);
+      photoDropZoneElement.addEventListener('dragleave', onDropZoneDrag);
+      photoDropZoneElement.addEventListener('drop', onDropZoneDrop);
 
       avatarInputElement.addEventListener('change', onUserAvatarChange);
       photoInputElement.addEventListener('change', onOfferPreviewChange);
     },
     deactivate: function () {
-      deactivateDropZone(avatarDropZoneElement);
-      deactivateDropZone(photoDropZoneElement);
+
+      avatarDropZoneElement.removeEventListener('dragover', onDropZoneDragover);
+      avatarDropZoneElement.removeEventListener('dragleave', onDropZoneDrag);
+      avatarDropZoneElement.removeEventListener('drop', onDropZoneDrop);
+      photoDropZoneElement.removeEventListener('dragover', onDropZoneDragover);
+      photoDropZoneElement.removeEventListener('dragleave', onDropZoneDrag);
+      photoDropZoneElement.removeEventListener('drop', onDropZoneDrop);
 
       avatarInputElement.removeEventListener('change', onUserAvatarChange);
       photoInputElement.removeEventListener('change', onOfferPreviewChange);
