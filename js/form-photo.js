@@ -4,7 +4,7 @@
 
   var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
   var DEFAULT_AVATAR = 'img/muffin-grey.svg';
-  var DROP_EFFECT = 'move';
+  // var DROP_EFFECT = 'move';
 
   var AvatarImageStyle = {
     WIDTH: '40px',
@@ -92,109 +92,48 @@
     photoContainerElement.appendChild(emptyElement);
   };
 
-  var activateDropZone = function (dropZone, onDrop) {
-    dropZone.addEventListener('dragover', function (evt) {
-      evt.preventDefault();
-      dropZone.style.color = DropZoneStyle.COLOR;
-      dropZone.style.border = DropZoneStyle.BORDER;
-    });
-
-    dropZone.addEventListener('dragleave', function (evt) {
-      evt.preventDefault();
-      dropZone.removeAttribute('style');
-    });
-
-    dropZone.addEventListener('drop', function (evt) {
-      evt.preventDefault();
-      dropZone.removeAttribute('style');
-
-      var fileImage = evt.dataTransfer.files[0];
-      onDrop(fileImage);
-    });
+  var activateDropZone = function (dropZone) {
+    dropZone.addEventListener('dragover', onDropZoneDragover);
+    dropZone.addEventListener('dragleave', onDropZoneDrag);
+    dropZone.addEventListener('drop', onDropZoneDrop);
   };
 
   var deactivateDropZone = function (dropZone) {
-    dropZone.removeEventListener('dragover', function (evt) {
-      evt.preventDefault();
-      dropZone.removeAttribute('style');
-    });
-    dropZone.removeEventListener('dragleave', function (evt) {
-      evt.preventDefault();
-      dropZone.removeAttribute('style');
-    });
-    dropZone.removeEventListener('drop', function (evt) {
-      evt.preventDefault();
-      dropZone.removeAttribute('style');
+    dropZone.removeEventListener('dragover', onDropZoneDrag);
+    dropZone.removeEventListener('dragleave', onDropZoneDrag);
+    dropZone.removeEventListener('drop', onDropZoneDrag);
+  };
+
+  var testDragSorting = function () {
+    var dragging = null;
+
+    var photoWrappersElements = document.querySelectorAll('.ad-form__photo');
+
+    Array.prototype.forEach.call(photoWrappersElements, function (element) {
+      element.setAttribute('draggable', true);
+      element.addEventListener('dragstart', function (event) {
+        dragging = event.target;
+        event.dataTransfer.setData('text/html', dragging);
+      });
+
+      element.addEventListener('dragover', function (event) {
+        event.preventDefault();
+      });
+
+      element.addEventListener('drop', function (event) {
+        event.preventDefault();
+        if (event.target.style['border-bottom'] !== '') {
+          event.target.style['border-bottom'] = '';
+          event.target.parentNode.insertBefore(dragging, event.target.nextSibling);
+        } else {
+          event.target.style['border-top'] = '';
+          event.target.parentNode.insertBefore(dragging, event.target);
+        }
+      });
     });
   };
 
-  // ==========================================================
-
-  function sortablePreview(rootElement, onUpdate) {
-    var dragElement;
-    var nextElement;
-
-    // Делаем всех детей перетаскиваемыми
-    [].slice.call(rootElement.children).forEach(function (itemElement) {
-      itemElement.setAttribute('draggable', 'true');
-      // itemElement.draggable = true;
-    });
-
-    // Фнукция отвечающая за сортировку
-    function dragOver(evt) {
-      evt.preventDefault();
-      evt.dataTransfer.dropEffect = DROP_EFFECT;
-
-      var target = evt.target;
-      if (target && target !== dragElement && target.nodeName === 'DIV') {
-        // Сортируем
-        rootElement.insertBefore(dragElement, rootElement.children[0] !== target && target.nextSibling || target);
-      }
-    }
-
-    // Окончание сортировки
-    function dragEnd(evt) {
-      evt.preventDefault();
-
-      dragElement.classList.remove('hidden');
-      rootElement.removeEventListener('dragover', dragOver, false);
-      rootElement.removeEventListener('dragend', dragEnd, false);
-
-      if (nextElement !== dragElement.nextSibling) {
-        // Сообщаем об окончании сортировки
-        onUpdate(dragElement);
-      }
-    }
-
-    // Начало сортировки
-    rootElement.addEventListener('dragstart', function (evt) {
-      dragElement = evt.target; // Запоминаем элемент который будет перемещать
-      nextElement = dragElement.nextSibling;
-
-      // Ограничиваем тип перетаскивания
-      evt.dataTransfer.effectAllowed = DROP_EFFECT;
-      evt.dataTransfer.setData('text/plain', dragElement.textContent);
-
-      // Пописываемся на события при dnd
-      rootElement.addEventListener('dragover', dragOver, false);
-      rootElement.addEventListener('dragend', dragEnd, false);
-
-      setTimeout(function () {
-        // Если выполнить данное действие без setTimeout, то
-        // перетаскиваемый объект, будет иметь этот класс.
-        dragElement.classList.add('hidden');
-      }, 0);
-    }, false);
-  }
-
-  // Используем
-  sortablePreview(document.querySelector('.ad-form__photo-container'), function (item) {
-    // eslint-disable-next-line no-console
-    console.log(item);
-  });
-
-  // ==============================================
-
+  testDragSorting();
 
   var onUserAvatarChange = function () {
     var fileImage = avatarInputElement.files[0];
@@ -204,6 +143,24 @@
   var onOfferPreviewChange = function () {
     var previewImage = photoInputElement.files[0];
     chooseOfferImage(previewImage);
+  };
+
+  var onDropZoneDrag = function (evt, dropZone) {
+    evt.preventDefault();
+    dropZone.removeAttribute('style');
+  };
+
+  var onDropZoneDragover = function (evt, dropZone) {
+    evt.preventDefault();
+    dropZone.style.color = DropZoneStyle.COLOR;
+    dropZone.style.border = DropZoneStyle.BORDER;
+  };
+
+  var onDropZoneDrop = function (evt, dropZone, onDrop) {
+    evt.preventDefault();
+    dropZone.removeAttribute('style');
+    var fileImage = evt.dataTransfer.files[0];
+    onDrop(fileImage);
   };
 
   var avatarInputElement = document.querySelector('#avatar');
