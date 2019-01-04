@@ -3,6 +3,17 @@
 (function () {
   var mapElement = document.querySelector('.map');
 
+  var deactivatePage = function () {
+    window.popup.remove();
+    window.pins.remove();
+    window.mainPin.resetPosition();
+    window.form.setAddressValue(window.mainPin.getDefaultPosition());
+    window.form.deactivate();
+    window.formPhoto.deactivate();
+    isMapActive = false;
+    mapElement.classList.add('map--faded');
+  };
+
   var onFilter = function (filteredOffers) {
     window.popup.remove();
     window.pins.remove();
@@ -36,13 +47,11 @@
 
   var callbackFormSubmit = function (data) {
     window.backend.postOffer(data, onPostOfferSuccess, onPostOfferError);
+    deactivatePage();
   };
 
   var callbackFormReset = function () {
-    window.popup.remove();
-    window.pins.remove();
-    window.mainPin.resetPosition();
-    window.formPhoto.reset();
+    deactivatePage();
   };
 
   var isMapActive = false;
@@ -60,6 +69,5 @@
   };
 
   window.mainPin.activate(callbackMainPinMouseUp);
-  window.filter.deactivate();
-  window.formPhoto.deactivate();
+  deactivatePage();
 })();
