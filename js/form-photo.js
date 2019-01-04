@@ -16,15 +16,15 @@
   var PHOTO_IMAGE_ALT = 'Фото жилья';
 
   var photoStyles = {
-    WIDTH: '70px',
-    HEIGHT: '70px',
-    BORDER_RADIUS: '5px'
+    width: '70px',
+    height: '70px',
+    borderRadius: '5px'
   };
 
-  // var DropZoneStyle = {
-  //   COLOR: '#ff5635',
-  //   BORDER: '1px solid #c7c7c7'
-  // };
+  var dropZoneStyles = {
+    color: '#ff5635',
+    border: '1px solid #c7c7c7'
+  };
 
   var setElementStyles = function (element, styles) {
     Object.keys(styles).forEach(function (styleName) {
@@ -32,12 +32,13 @@
     });
   };
 
-  var createImageChangeHandler = function (onLoad, fileImage) {
-    return function () {
-      fileImage = fileImage.files[0];
-      var fileImageName = fileImage.name.toLowerCase();
-      var matches = FILE_TYPES.some(function (imageFormat) {
-        return fileImageName.endsWith(imageFormat);
+  var createImageChangeHandler = function (onLoad) {
+    return function (evt) {
+      var file = evt.target.files[0];
+      var fileName = file.name.toLowerCase();
+
+      var matches = FILE_TYPES.some(function (fileType) {
+        return fileName.endsWith(fileType);
       });
 
       if (matches) {
@@ -45,146 +46,125 @@
         reader.addEventListener('load', function () {
           onLoad(reader.result);
         });
-        reader.readAsDataURL(fileImage);
+        reader.readAsDataURL(file);
       }
     };
   };
 
-  var onAvatarLoad = function (result) {
-    avatarImageElement.src = result;
+  var onAvatarLoad = function (fileSource) {
+    avatarImageElement.src = fileSource;
     avatarImageElement.alt = AVATAR_IMAGE_ALT;
     setElementStyles(avatarImageElement, avatarStyles);
   };
 
-  var onPhotoLoad = function (result) {
+  var onPhotoLoad = function (fileSource) {
+    var photoWrapperElement = photoContainerElement.querySelector('.ad-form__photo');
     if (!photoWrapperElement.hasChildNodes()) {
       photoWrapperElement.remove();
     }
 
-    var photoWrapElement = document.createElement('div');
-    var photoImageElement = document.createElement('img');
+    var wrapperElement = document.createElement('div');
+    var imageElement = document.createElement('img');
 
-    photoImageElement.src = result;
-    photoWrapElement.classList.add('ad-form__photo');
-    photoImageElement.alt = PHOTO_IMAGE_ALT;
-    setElementStyles(photoImageElement, photoStyles);
+    wrapperElement.classList.add('ad-form__photo');
 
-    photoWrapElement.appendChild(photoImageElement);
-    photoContainerElement.appendChild(photoWrapElement);
+    imageElement.src = fileSource;
+    imageElement.alt = PHOTO_IMAGE_ALT;
+
+    setElementStyles(imageElement, photoStyles);
+
+    wrapperElement.appendChild(imageElement);
+    photoContainerElement.appendChild(wrapperElement);
   };
 
-  var onUserAvatarChange = createImageChangeHandler(onAvatarLoad, avatarInputElement);
-  var onOfferPreviewChange = createImageChangeHandler(onPhotoLoad, photoInputElement);
-
+  var onUserAvatarChange = createImageChangeHandler(onAvatarLoad);
+  var onPhotoPreviewChange = createImageChangeHandler(onPhotoLoad);
 
   var resetAvatar = function () {
     avatarImageElement.src = DEFAULT_AVATAR;
   };
 
-  var resetPreviewsPhoto = function () {
-    var photoWrappersElements = document.querySelectorAll('.ad-form__photo');
-    Array.prototype.forEach.call(photoWrappersElements, function (preview) {
-      preview.remove();
+  var resetPhotos = function () {
+    var photoElements = document.querySelectorAll('.ad-form__photo');
+    var emptyElement = document.createElement('div');
+
+    photoElements.forEach(function (photoElement) {
+      photoElement.remove();
     });
 
-    var emptyElement = document.createElement('div');
     emptyElement.classList.add('ad-form__photo');
+
     photoContainerElement.appendChild(emptyElement);
   };
 
-  /*
-  // TODO функция не закончена
-  var testDragSorting = function () {
-    var dragging = null;
-
-    var photoWrappersElements = document.querySelectorAll('.ad-form__photo');
-
-    Array.prototype.forEach.call(photoWrappersElements, function (element) {
-      element.setAttribute('draggable', true);
-      element.addEventListener('dragstart', function (evt) {
-        dragging = event.target;
-        evt.dataTransfer.setData('text/html', dragging);
-      });
-
-      element.addEventListener('dragover', function (evt) {
-        evt.preventDefault();
-      });
-
-      element.addEventListener('drop', function (evt) {
-        evt.preventDefault();
-        if (evt.target.style['border-bottom'] !== '') {
-          evt.target.style['border-bottom'] = '';
-          evt.target.parentNode.insertBefore(dragging, evt.target.nextSibling);
-        } else {
-          evt.target.style['border-top'] = '';
-          evt.target.parentNode.insertBefore(dragging, evt.target);
-        }
-      });
-    });
-  };
-
-  testDragSorting();
-
-
-  var onDropZoneDrag = function (evt, dropZone) {
+  var onDropZoneDragleave = function (evt) {
     evt.preventDefault();
-    dropZone.removeAttribute('style');
+    evt.target.removeAttribute('style');
   };
 
-  var onDropZoneDragover = function (evt, dropZone) { // dropZone
-    // evt.target ?
+  var onDropZoneDragover = function (evt) {
     evt.preventDefault();
-    // setElementStyles()
-    dropZone.style.color = DropZoneStyle.COLOR;
-    dropZone.style.border = DropZoneStyle.BORDER;
+    setElementStyles(evt.target, dropZoneStyles);
   };
 
-  var onDropZoneDrop = function (evt, dropZone, onDrop) {
-    evt.preventDefault();
-    dropZone.removeAttribute('style');
-    var fileImage = evt.dataTransfer.files[0];
-    onDrop(fileImage);
+  var createDropHandler = function (onLoad) {
+    return function (evt) {
+      evt.preventDefault();
+      evt.target.removeAttribute('style');
+
+      var reader = new FileReader();
+      reader.addEventListener('load', function () {
+        onLoad(reader.result);
+      });
+      reader.readAsDataURL((evt.dataTransfer.files[0]));
+    };
   };
-*/
+
+  var onAvatarDropZoneDrop = createDropHandler(onAvatarLoad);
+  var onPhotoDropZoneDrop = createDropHandler(onPhotoLoad);
+
+  var onAvatarDropZoneDragover = onDropZoneDragover;
+  var onAvatarDropZoneDragleave = onDropZoneDragleave;
+  var onPhotoDropZoneDragover = onDropZoneDragover;
+  var onPhotoDropZoneDragleave = onDropZoneDragleave;
+
   var avatarInputElement = document.querySelector('#avatar');
   var avatarWrapperElement = document.querySelector('.ad-form-header__preview');
   var avatarImageElement = avatarWrapperElement.querySelector('img');
-  // var avatarDropZoneElement = document.querySelector('.ad-form-header__drop-zone');
+  var avatarDropZoneElement = document.querySelector('.ad-form-header__drop-zone');
 
-  // var photoDropZoneElement = document.querySelector('.ad-form__drop-zone');
+
   var photoInputElement = document.querySelector('.ad-form__upload input[type=file]');
   var photoContainerElement = document.querySelector('.ad-form__photo-container');
-  var photoWrapperElement = photoContainerElement.querySelector('.ad-form__photo');
-
+  var photoDropZoneElement = document.querySelector('.ad-form__drop-zone');
 
   window.formPhoto = {
     activate: function () {
-      /*
-      avatarDropZoneElement.addEventListener('dragover', onDropZoneDragover);
-      avatarDropZoneElement.addEventListener('dragleave', onDropZoneDrag);
-      avatarDropZoneElement.addEventListener('drop', onDropZoneDrop);
-      photoDropZoneElement.addEventListener('dragover', onDropZoneDragover);
-      photoDropZoneElement.addEventListener('dragleave', onDropZoneDrag);
-      photoDropZoneElement.addEventListener('drop', onDropZoneDrop);
-*/
+      avatarDropZoneElement.addEventListener('drop', onAvatarDropZoneDrop);
+      avatarDropZoneElement.addEventListener('dragover', onAvatarDropZoneDragover);
+      avatarDropZoneElement.addEventListener('dragleave', onAvatarDropZoneDragleave);
+
+      photoDropZoneElement.addEventListener('drop', onPhotoDropZoneDrop);
+      photoDropZoneElement.addEventListener('dragover', onPhotoDropZoneDragover);
+      photoDropZoneElement.addEventListener('dragleave', onPhotoDropZoneDragleave);
+
       avatarInputElement.addEventListener('change', onUserAvatarChange);
-      photoInputElement.addEventListener('change', onOfferPreviewChange);
+      photoInputElement.addEventListener('change', onPhotoPreviewChange);
     },
     deactivate: function () {
-      /*
-      avatarDropZoneElement.removeEventListener('dragover', onDropZoneDragover);
-      avatarDropZoneElement.removeEventListener('dragleave', onDropZoneDrag);
-      avatarDropZoneElement.removeEventListener('drop', onDropZoneDrop);
-      photoDropZoneElement.removeEventListener('dragover', onDropZoneDragover);
-      photoDropZoneElement.removeEventListener('dragleave', onDropZoneDrag);
-      photoDropZoneElement.removeEventListener('drop', onDropZoneDrop);
-*/
-      avatarInputElement.removeEventListener('change', onUserAvatarChange);
-      photoInputElement.removeEventListener('change', onOfferPreviewChange);
-    },
-    reset: function () {
+      avatarDropZoneElement.removeEventListener('drop', onAvatarDropZoneDrop);
+      avatarDropZoneElement.removeEventListener('dragover', onAvatarDropZoneDragover);
+      avatarDropZoneElement.removeEventListener('dragleave', onAvatarDropZoneDragleave);
+
+      photoDropZoneElement.removeEventListener('drop', onPhotoDropZoneDrop);
+      photoDropZoneElement.removeEventListener('dragover', onPhotoDropZoneDragover);
+      photoDropZoneElement.removeEventListener('dragleave', onPhotoDropZoneDragleave);
+
       resetAvatar();
-      resetPreviewsPhoto();
+      resetPhotos();
+
+      avatarInputElement.removeEventListener('change', onUserAvatarChange);
+      photoInputElement.removeEventListener('change', onPhotoPreviewChange);
     }
   };
 })();
