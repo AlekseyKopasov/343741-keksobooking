@@ -55,6 +55,13 @@
       .replace('{translationGuests}', translateGuests(guests));
   };
 
+  var createOfferCapacity = function (rooms, guests) {
+    if (rooms > 0 || guests > 0) {
+      return createCapacityTranslation(rooms, guests);
+    }
+    return '';
+  };
+
   var createTimeTranslation = function (checkin, checkout) {
     return TEMPLATE_TIME
       .replace('{checkin}', checkin)
@@ -102,7 +109,7 @@
     popupElement.querySelector('.popup__description').textContent = offer.description;
     popupElement.querySelector('.popup__text--price').textContent = createPriceTranslation(offer.price);
     popupElement.querySelector('.popup__text--time').textContent = createTimeTranslation(offer.checkin, offer.checkout);
-    popupElement.querySelector('.popup__text--capacity').textContent = createCapacityTranslation(offer.rooms, offer.guests);
+    popupElement.querySelector('.popup__text--capacity').textContent = createOfferCapacity(offer.rooms, offer.guests);
     popupElement.querySelector('.popup__type').textContent = TYPES_TRANSLATION_MAP[offer.type];
 
     popupPhotosElement.innerHTML = '';

@@ -38,7 +38,7 @@
 
   var disableElements = function (elements) {
     Array.prototype.forEach.call(elements, function (element) {
-      element.removeAttribute('disabled');
+      element.setAttribute('disabled', true);
     });
   };
 

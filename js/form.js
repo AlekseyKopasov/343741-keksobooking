@@ -122,12 +122,11 @@
       formElement.addEventListener('submit', onFormSubmit);
       formElement.addEventListener('reset', onFormReset);
     },
-    deactivate: function (fieldAddressValue) {
+    deactivate: function () {
       disableElements(formFieldsetElements);
+      formElement.classList.add('ad-form--disabled');
 
       formElement.reset();
-
-      fieldAddressElement.setAttribute('value', fieldAddressValue);
 
       fieldCheckinElement.removeEventListener('change', onChekinChange);
       fieldCheckoutElement.removeEventListener('change', onCheckoutChange);
