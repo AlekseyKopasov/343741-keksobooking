@@ -5,10 +5,10 @@
   var BOX_SHADOW_DEFAULT = '0 0 1px 1px #d9d9d3';
 
   var TypeMinPrice = {
-    bungalo: '0',
-    flat: '1000',
-    house: '5000',
-    palace: '10000'
+    BUNGALO: '0',
+    FLAT: '1000',
+    HOUSE: '5000',
+    PALACE: '10000'
   };
 
   var ValidationCapacity = {
@@ -51,7 +51,7 @@
   };
 
   var onTypeMatchesPriceChange = function (evt) {
-    var minPrice = TypeMinPrice[evt.target.value];
+    var minPrice = TypeMinPrice[evt.target.value.toLowerCase()];
     fieldPriceElement.min = minPrice;
     fieldPriceElement.placeholder = minPrice.toString();
   };

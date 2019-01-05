@@ -47,7 +47,7 @@
   };
 
   var filterOfferByPrice = function (offer) {
-    var priceLimit = FilterPrice[filterPriceElement.value];
+    var priceLimit = FilterPrice[filterPriceElement.value.toUpperCase()];
     return filterPriceElement.value === FILTER_FIELD_DEFAULT_VALUE || offer.offer.price >= priceLimit.min && offer.offer.price <= priceLimit.max;
   };
 

@@ -106,14 +106,59 @@
     var popupPhotosElement = popupElement.querySelector('.popup__photos');
     var popupFeaturesElement = popupElement.querySelector('.popup__features');
 
-    popupElement.querySelector('.popup__title').textContent = offer.title;
-    popupElement.querySelector('.popup__text--address').textContent = offer.address;
-    popupElement.querySelector('.popup__avatar').src = data.author.avatar;
-    popupElement.querySelector('.popup__description').textContent = offer.description;
-    popupElement.querySelector('.popup__text--price').textContent = createPriceTranslation(offer.price);
-    popupElement.querySelector('.popup__text--time').textContent = createTimeTranslation(offer.checkin, offer.checkout);
-    popupElement.querySelector('.popup__text--capacity').textContent = createOfferCapacity(offer.rooms, offer.guests);
-    popupElement.querySelector('.popup__type').textContent = TypesTranslationMap[offer.type];
+    var offerPropertyDefinitions = [
+      {
+        selector: '.popup__title',
+        attribute: 'textContent',
+        value: offer.title
+      },
+      {
+        selector: '.popup__text--address',
+        attribute: 'textContent',
+        value: offer.address
+      },
+      {
+        selector: '.popup__avatar',
+        attribute: 'src',
+        value: data.author.avatar
+      },
+      {
+        selector: '.popup__description',
+        attribute: 'textContent',
+        value: offer.description
+      },
+      {
+        selector: '.popup__text--price',
+        attribute: 'textContent',
+        value: createPriceTranslation(offer.price)
+      },
+      {
+        selector: '.popup__text--time',
+        attribute: 'textContent',
+        value: createTimeTranslation(offer.checkin, offer.checkout)
+      },
+      {
+        selector: '.popup__text--capacity',
+        attribute: 'textContent',
+        value: createOfferCapacity(offer.rooms, offer.guests)
+      },
+      {
+        selector: '.popup__type',
+        attribute: 'textContent',
+        value: TypesTranslationMap[offer.type]
+      }
+    ];
+
+    offerPropertyDefinitions.forEach(function (definition) {
+      var element = popupElement.querySelector(definition.selector);
+      if (element) {
+        if (definition.value) {
+          element[definition] = definition.value;
+        } else {
+          element.classList.add('hidden');
+        }
+      }
+    });
 
     popupPhotosElement.innerHTML = '';
     popupFeaturesElement.innerHTML = '';
