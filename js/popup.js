@@ -1,27 +1,27 @@
 'use strict';
 
 (function () {
-  var TYPES_TRANSLATION_MAP = {
-    flat: 'Квартира',
-    palace: 'Дворец',
-    house: 'Дом',
-    bungalo: 'Бунгало'
+  var TypesTranslationMap = {
+    FLAT: 'Квартира',
+    PALACE: 'Дворец',
+    HOUSE: 'Дом',
+    BUNGALO: 'Бунгало'
   };
 
-  var TRANSLATE_LIMIT_CASE = {
-    nominative: 1,
-    genitive: 5
+  var TranslateLimitCase = {
+    NOMINATIVE: 1,
+    GENITIVE: 5
   };
 
-  var ROOMS_TRANSLATE_MAP = {
-    nominative: 'комната',
-    genitive: 'комнат',
-    plural: 'комнаты'
+  var RoomsTranslateMap = {
+    NOMINATIVE: 'комната',
+    GENITIVE: 'комнат',
+    PLURAL: 'комнаты'
   };
 
-  var GUESTS_TRANSLATE_MAP = {
-    genitive: 'гостя',
-    plural: 'гостей'
+  var GuestsTranslateMap = {
+    GENITIVE: 'гостя',
+    PLURAL: 'гостей'
   };
 
   var POPUP_PHOTO_WIDTH = 45;
@@ -33,19 +33,17 @@
   var TEPMLATE_CAPACITY = '{rooms} {translationRooms} для {guests} {translationGuests}';
 
   var translateRooms = function (rooms) {
-    if (rooms === TRANSLATE_LIMIT_CASE.nominative) {
-      return ROOMS_TRANSLATE_MAP.nominative;
+    if (rooms === TranslateLimitCase.NOMINATIVE) {
+      return RoomsTranslateMap.NOMINATIVE;
     }
-
-    if (rooms === TRANSLATE_LIMIT_CASE.genitive) {
-      return ROOMS_TRANSLATE_MAP.genitive;
+    if (rooms === TranslateLimitCase.GENITIVE) {
+      return RoomsTranslateMap.GENITIVE;
     }
-
-    return ROOMS_TRANSLATE_MAP.plural;
+    return RoomsTranslateMap.PLURAL;
   };
 
   var translateGuests = function (guestsNumber) {
-    return guestsNumber === TRANSLATE_LIMIT_CASE.nominative ? GUESTS_TRANSLATE_MAP.genitive : GUESTS_TRANSLATE_MAP.plural;
+    return guestsNumber === TranslateLimitCase.NOMINATIVE ? GuestsTranslateMap.GENITIVE : GuestsTranslateMap.PLURAL;
   };
 
   var createPriceTranslation = function (price) {
@@ -115,7 +113,7 @@
     popupElement.querySelector('.popup__text--price').textContent = createPriceTranslation(offer.price);
     popupElement.querySelector('.popup__text--time').textContent = createTimeTranslation(offer.checkin, offer.checkout);
     popupElement.querySelector('.popup__text--capacity').textContent = createOfferCapacity(offer.rooms, offer.guests);
-    popupElement.querySelector('.popup__type').textContent = TYPES_TRANSLATION_MAP[offer.type];
+    popupElement.querySelector('.popup__type').textContent = TypesTranslationMap[offer.type];
 
     popupPhotosElement.innerHTML = '';
     popupFeaturesElement.innerHTML = '';

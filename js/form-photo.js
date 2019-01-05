@@ -7,7 +7,7 @@
 
   var AVATAR_IMAGE_ALT = 'Аватар пользователя';
 
-  var avatarStyles = {
+  var AvatarStyles = {
     width: '40px',
     height: '44px',
     borderRadius: '5px'
@@ -15,13 +15,13 @@
 
   var PHOTO_IMAGE_ALT = 'Фото жилья';
 
-  var photoStyles = {
+  var PhotoStyles = {
     width: '70px',
     height: '70px',
     borderRadius: '5px'
   };
 
-  var dropZoneStyles = {
+  var DropZoneStyles = {
     color: '#ff5635',
     border: '1px solid #c7c7c7'
   };
@@ -54,7 +54,7 @@
   var onAvatarLoad = function (fileSource) {
     avatarImageElement.src = fileSource;
     avatarImageElement.alt = AVATAR_IMAGE_ALT;
-    setElementStyles(avatarImageElement, avatarStyles);
+    setElementStyles(avatarImageElement, AvatarStyles);
   };
 
   var onPhotoLoad = function (fileSource) {
@@ -71,7 +71,7 @@
     imageElement.src = fileSource;
     imageElement.alt = PHOTO_IMAGE_ALT;
 
-    setElementStyles(imageElement, photoStyles);
+    setElementStyles(imageElement, PhotoStyles);
 
     wrapperElement.appendChild(imageElement);
     photoContainerElement.appendChild(wrapperElement);
@@ -104,7 +104,7 @@
 
   var onDropZoneDragover = function (evt) {
     evt.preventDefault();
-    setElementStyles(evt.target, dropZoneStyles);
+    setElementStyles(evt.target, DropZoneStyles);
   };
 
   var createDropHandler = function (onLoad) {

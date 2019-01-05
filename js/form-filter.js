@@ -2,15 +2,15 @@
 
 (function () {
   var FilterPrice = {
-    low: {
+    LOW: {
       min: 0,
       max: 10000
     },
-    middle: {
+    MIDDLE: {
       min: 10000,
       max: 50000
     },
-    high: {
+    HIGH: {
       min: 50000,
       max: Infinity
     }
