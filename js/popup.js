@@ -27,12 +27,17 @@
   var TEMPLATE_TIME = 'Заезд после {checkin}, выезд до {checkout}';
   var TEPMLATE_CAPACITY = '{rooms} {translationRooms} для {guests} {translationGuests}';
 
+  var NUMBER_MAP = {
+    one: 1,
+    five: 5
+  };
+
   var translateRooms = function (rooms) {
-    if (rooms === 1) {
+    if (rooms === NUMBER_MAP.one) {
       return ROOMS_TRANSLATE_MAP.nominative;
     }
 
-    if (rooms === 5) {
+    if (rooms === NUMBER_MAP.five) {
       return ROOMS_TRANSLATE_MAP.genitive;
     }
 
@@ -40,7 +45,7 @@
   };
 
   var translateGuests = function (guestsNumber) {
-    return guestsNumber === 1 ? GUESTS_TRANSLATE_MAP.genitive : GUESTS_TRANSLATE_MAP.plural;
+    return guestsNumber === NUMBER_MAP.one ? GUESTS_TRANSLATE_MAP.genitive : GUESTS_TRANSLATE_MAP.plural;
   };
 
   var createPriceTranslation = function (price) {

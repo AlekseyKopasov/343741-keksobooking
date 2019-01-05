@@ -52,16 +52,15 @@
   };
 
   var filterOfferByFeatures = function (offer) {
-    var checkboxFeaturesElements = filterFormElement.querySelectorAll('input[type="checkbox"]');
-    var features = Array
-    .from(checkboxFeaturesElements)
+    Array
+    .from(filterFormElement.querySelectorAll('input[type="checkbox"]'))
     .filter(function (featureElement) {
       return featureElement.checked;
     })
     .every(function (feature) {
       return offer.offer.features.indexOf(feature.value) !== -1;
     });
-    return features;
+    return offer;
   };
 
   var filter = function (offers) {
