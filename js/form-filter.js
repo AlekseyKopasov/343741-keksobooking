@@ -52,7 +52,7 @@
   };
 
   var filterOfferByFeatures = function (offer) {
-    Array
+    return Array
     .from(filterFormElement.querySelectorAll('input[type="checkbox"]'))
     .filter(function (featureElement) {
       return featureElement.checked;
@@ -60,7 +60,6 @@
     .every(function (feature) {
       return offer.offer.features.indexOf(feature.value) !== -1;
     });
-    return offer;
   };
 
   var filter = function (offers) {

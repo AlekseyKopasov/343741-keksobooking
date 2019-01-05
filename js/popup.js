@@ -8,6 +8,11 @@
     bungalo: 'Бунгало'
   };
 
+  var TRANSLATE_LIMIT_CASE = {
+    nominative: 1,
+    genitive: 5
+  };
+
   var ROOMS_TRANSLATE_MAP = {
     nominative: 'комната',
     genitive: 'комнат',
@@ -27,17 +32,12 @@
   var TEMPLATE_TIME = 'Заезд после {checkin}, выезд до {checkout}';
   var TEPMLATE_CAPACITY = '{rooms} {translationRooms} для {guests} {translationGuests}';
 
-  var NUMBER_MAP = {
-    one: 1,
-    five: 5
-  };
-
   var translateRooms = function (rooms) {
-    if (rooms === NUMBER_MAP.one) {
+    if (rooms === TRANSLATE_LIMIT_CASE.nominative) {
       return ROOMS_TRANSLATE_MAP.nominative;
     }
 
-    if (rooms === NUMBER_MAP.five) {
+    if (rooms === TRANSLATE_LIMIT_CASE.genitive) {
       return ROOMS_TRANSLATE_MAP.genitive;
     }
 
@@ -45,7 +45,7 @@
   };
 
   var translateGuests = function (guestsNumber) {
-    return guestsNumber === NUMBER_MAP.one ? GUESTS_TRANSLATE_MAP.genitive : GUESTS_TRANSLATE_MAP.plural;
+    return guestsNumber === TRANSLATE_LIMIT_CASE.nominative ? GUESTS_TRANSLATE_MAP.genitive : GUESTS_TRANSLATE_MAP.plural;
   };
 
   var createPriceTranslation = function (price) {
