@@ -2,6 +2,7 @@
 
 (function () {
   var ERROR_FORM_STYLE = '0 0 3px 3px red';
+  var BOX_SHADOW_DEFAULT = '0 0 1px 1px #d9d9d3';
 
   var TYPE_MIN_PRICE = {
     bungalo: '0',
@@ -30,13 +31,13 @@
   var fieldRoomElement = formElement.querySelector('#room_number');
 
   var disableElements = function (elements) {
-    Array.prototype.forEach.call(elements, function (element) {
+    elements.forEach(function (element) {
       element.setAttribute('disabled', '');
     });
   };
 
   var enableElements = function (elements) {
-    Array.prototype.forEach.call(elements, function (element) {
+    elements.forEach(function (element) {
       element.removeAttribute('disabled');
     });
   };
@@ -67,7 +68,7 @@
 
     evt.target.setCustomValidity('');
 
-    Array.prototype.forEach.call(optionElements, function (optionElement) {
+    optionElements.forEach(function (optionElement) {
       if (VALIDATION_CAPACITY[roomsValue].indexOf(optionElement.value) === -1) {
         optionElement.setAttribute('disabled', 'disabled');
       } else {
@@ -125,6 +126,9 @@
     deactivate: function () {
       disableElements(formFieldsetElements);
       formElement.classList.add('ad-form--disabled');
+
+      fieldTitleElement.style.boxShadow = BOX_SHADOW_DEFAULT;
+      fieldPriceElement.style.boxShadow = BOX_SHADOW_DEFAULT;
 
       formElement.reset();
 

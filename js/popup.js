@@ -68,7 +68,7 @@
       .replace('{checkout}', checkout);
   };
 
-  var createPopupFeaturesFragment = function (features) {
+  var createFeaturesFragment = function (features) {
     var fragment = document.createDocumentFragment();
 
     features.forEach(function (feature) {
@@ -80,7 +80,7 @@
     return fragment;
   };
 
-  var createPopupPhotosFragment = function (photos) {
+  var createPhotosFragment = function (photos) {
     var fragment = document.createDocumentFragment();
 
     photos.forEach(function (photo) {
@@ -97,7 +97,7 @@
     return fragment;
   };
 
-  var createPopupElement = function (data) {
+  var createElement = function (data) {
     var offer = data.offer;
     var popupElement = templatePopupElement.cloneNode(true);
     var popupPhotosElement = popupElement.querySelector('.popup__photos');
@@ -115,13 +115,13 @@
     popupPhotosElement.innerHTML = '';
     popupFeaturesElement.innerHTML = '';
 
-    popupPhotosElement.appendChild(createPopupPhotosFragment(offer.photos));
-    popupFeaturesElement.appendChild(createPopupFeaturesFragment(offer.features));
+    popupPhotosElement.appendChild(createPhotosFragment(offer.photos));
+    popupFeaturesElement.appendChild(createFeaturesFragment(offer.features));
 
     return popupElement;
   };
 
-  var closePopup = function () {
+  var close = function () {
     var currentPopupElement = document.querySelector('.map__card');
     if (currentPopupElement) {
       currentPopupElement.removeEventListener('click', onPopupCloseClick);
@@ -130,14 +130,14 @@
     }
   };
 
-  var openPopup = function (offer) {
+  var open = function (offer) {
     var currentPopupElement = document.querySelector('.map__card');
 
     if (currentPopupElement) {
       currentPopupElement.remove();
     }
 
-    var popupElement = createPopupElement(offer);
+    var popupElement = createElement(offer);
     var popupCloseElement = popupElement.querySelector('.popup__close');
 
     popupCloseElement.setAttribute('tabIndex', '0');
@@ -149,12 +149,12 @@
   };
 
   var onPopupCloseClick = function () {
-    closePopup();
+    close();
   };
 
   var onDocumentEscKeydown = function (evt) {
     if (evt.keyCode === KEYCODE_ESC) {
-      closePopup();
+      close();
     }
   };
 
@@ -163,7 +163,7 @@
   var mapElement = document.querySelector('.map');
 
   window.popup = {
-    create: openPopup,
-    remove: closePopup
+    open: open,
+    close: close
   };
 })();

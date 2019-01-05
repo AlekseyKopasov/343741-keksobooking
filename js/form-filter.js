@@ -31,13 +31,13 @@
   var filterPriceElement = filterFormElement.querySelector('#housing-price');
 
   var enableElements = function (elements) {
-    Array.prototype.forEach.call(elements, function (element) {
+    elements.forEach(function (element) {
       element.removeAttribute('disabled');
     });
   };
 
   var disableElements = function (elements) {
-    Array.prototype.forEach.call(elements, function (element) {
+    elements.forEach(function (element) {
       element.setAttribute('disabled', true);
     });
   };
@@ -52,11 +52,11 @@
   };
 
   var filterOfferByFeatures = function (offer) {
-    var checkboxFeaturesElements = Array.from(filterFormElement.querySelectorAll('input[type="checkbox"]'));
+    var checkboxFeaturesElements = filterFormElement.querySelectorAll('input[type="checkbox"]');
     var features = Array
     .from(checkboxFeaturesElements)
-    .filter(function (checkedFeature) {
-      return checkedFeature.checked;
+    .filter(function (featureElement) {
+      return featureElement.checked;
     })
     .every(function (feature) {
       return offer.offer.features.indexOf(feature.value) !== -1;
