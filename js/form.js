@@ -4,14 +4,14 @@
   var ERROR_FORM_STYLE = '0 0 3px 3px red';
   var BOX_SHADOW_DEFAULT = '0 0 1px 1px #d9d9d3';
 
-  var TYPE_MIN_PRICE = {
-    bungalo: '0',
-    flat: '1000',
-    house: '5000',
-    palace: '10000'
+  var TypeMinPrice = {
+    BUNGALO: '0',
+    FLAT: '1000',
+    HOUSE: '5000',
+    PALACE: '10000'
   };
 
-  var VALIDATION_CAPACITY = {
+  var ValidationCapacity = {
     1: ['1'],
     2: ['1', '2'],
     3: ['1', '2', '3'],
@@ -51,7 +51,7 @@
   };
 
   var onTypeMatchesPriceChange = function (evt) {
-    var minPrice = TYPE_MIN_PRICE[evt.target.value];
+    var minPrice = TypeMinPrice[evt.target.value.toLowerCase()];
     fieldPriceElement.min = minPrice;
     fieldPriceElement.placeholder = minPrice.toString();
   };
@@ -69,7 +69,7 @@
     evt.target.setCustomValidity('');
 
     optionElements.forEach(function (optionElement) {
-      if (VALIDATION_CAPACITY[roomsValue].indexOf(optionElement.value) === -1) {
+      if (ValidationCapacity[roomsValue].indexOf(optionElement.value) === -1) {
         optionElement.setAttribute('disabled', 'disabled');
       } else {
         optionElement.removeAttribute('disabled');

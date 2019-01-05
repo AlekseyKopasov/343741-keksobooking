@@ -2,15 +2,15 @@
 
 (function () {
   var FilterPrice = {
-    low: {
+    LOW: {
       min: 0,
       max: 10000
     },
-    middle: {
+    MIDDLE: {
       min: 10000,
       max: 50000
     },
-    high: {
+    HIGH: {
       min: 50000,
       max: Infinity
     }
@@ -47,21 +47,19 @@
   };
 
   var filterOfferByPrice = function (offer) {
-    var priceLimit = FilterPrice[filterPriceElement.value];
+    var priceLimit = FilterPrice[filterPriceElement.value.toUpperCase()];
     return filterPriceElement.value === FILTER_FIELD_DEFAULT_VALUE || offer.offer.price >= priceLimit.min && offer.offer.price <= priceLimit.max;
   };
 
   var filterOfferByFeatures = function (offer) {
-    var checkboxFeaturesElements = filterFormElement.querySelectorAll('input[type="checkbox"]');
-    var features = Array
-    .from(checkboxFeaturesElements)
+    return Array
+    .from(filterFormElement.querySelectorAll('input[type="checkbox"]'))
     .filter(function (featureElement) {
       return featureElement.checked;
     })
     .every(function (feature) {
       return offer.offer.features.indexOf(feature.value) !== -1;
     });
-    return features;
   };
 
   var filter = function (offers) {

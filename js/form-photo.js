@@ -4,31 +4,39 @@
 
   var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
   var DEFAULT_AVATAR = 'img/muffin-grey.svg';
-
   var AVATAR_IMAGE_ALT = 'Аватар пользователя';
-
-  var avatarStyles = {
-    width: '40px',
-    height: '44px',
-    borderRadius: '5px'
-  };
-
   var PHOTO_IMAGE_ALT = 'Фото жилья';
 
-  var photoStyles = {
-    width: '70px',
-    height: '70px',
-    borderRadius: '5px'
+  var AvatarStyles = {
+    WIDTH: '40px',
+    HEIGHT: '44px',
+    BORDER_RADIUS: '5px'
   };
 
-  var dropZoneStyles = {
-    color: '#ff5635',
-    border: '1px solid #c7c7c7'
+  var PhotoStyles = {
+    WIDTH: '70px',
+    HEIGHT: '70px',
+    BORDER_RADIUS: '5px'
+  };
+
+  var DropZoneStyles = {
+    COLOR: '#ff5635',
+    BORDER: '1px solid #c7c7c7'
+  };
+
+  var normalizeStyleName = function (styleName) {
+    return styleName
+      .toLowerCase()
+      .replace(/([a-z])_([a-z])/g, function (_, endOfPrevWord, beginOfNextWord) {
+        return endOfPrevWord + beginOfNextWord.toUpperCase();
+      });
   };
 
   var setElementStyles = function (element, styles) {
     Object.keys(styles).forEach(function (styleName) {
-      element.style[styleName] = styles[styleName];
+
+      var normalizedStyleName = normalizeStyleName(styleName);
+      element.style[normalizedStyleName] = styles[styleName];
     });
   };
 
@@ -54,7 +62,7 @@
   var onAvatarLoad = function (fileSource) {
     avatarImageElement.src = fileSource;
     avatarImageElement.alt = AVATAR_IMAGE_ALT;
-    setElementStyles(avatarImageElement, avatarStyles);
+    setElementStyles(avatarImageElement, AvatarStyles);
   };
 
   var onPhotoLoad = function (fileSource) {
@@ -71,7 +79,7 @@
     imageElement.src = fileSource;
     imageElement.alt = PHOTO_IMAGE_ALT;
 
-    setElementStyles(imageElement, photoStyles);
+    setElementStyles(imageElement, PhotoStyles);
 
     wrapperElement.appendChild(imageElement);
     photoContainerElement.appendChild(wrapperElement);
@@ -104,7 +112,7 @@
 
   var onDropZoneDragover = function (evt) {
     evt.preventDefault();
-    setElementStyles(evt.target, dropZoneStyles);
+    setElementStyles(evt.target, DropZoneStyles);
   };
 
   var createDropHandler = function (onLoad) {
