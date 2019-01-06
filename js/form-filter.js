@@ -53,7 +53,7 @@
 
   var filterOfferByFeatures = function (offer) {
     return Array
-    .from(filterFormElement.querySelectorAll('input[type="checkbox"]'))
+    .from(formInputElements)
     .filter(function (featureElement) {
       return featureElement.checked;
     })

@@ -19,18 +19,21 @@
     window.form.setAddressValue(window.mainPin.getDefaultPosition());
 
     isPageActive = false;
-    window.mainPin.activate(callbackMainPinMouseUp);
+  };
+
+  var onPinClick = function (offer) {
+    window.popup.open(offer);
   };
 
   var onFilter = function (filteredOffers) {
     window.popup.close();
     window.pins.remove();
-    window.pins.create(filteredOffers);
+    window.pins.create(filteredOffers, onPinClick);
   };
 
   var onGetOffersSuccess = function (offers) {
     window.filter.activate(offers, onFilter);
-    window.pins.create(offers);
+    window.pins.create(offers, onPinClick);
   };
 
   var onGetOffersError = function () {
@@ -58,15 +61,24 @@
 
   var isPageActive = false;
 
-  var callbackMainPinMouseUp = function (mainPinPosition) {
+  var callbackMainPinMouseUp = function () {
     if (!isPageActive) {
       activatePage();
     }
 
     isPageActive = true;
-    window.form.setAddressValue(mainPinPosition);
   };
 
+  var callbackMainPinMouseMove = function (mainPinPosition) {
+    window.form.setAddressValue(mainPinPosition);
+  };
+  var mapWidth = window.map.getWidth();
+
   deactivatePage();
-  window.mainPin.activate(callbackMainPinMouseUp);
+
+  window.mainPin.activate(
+      mapWidth,
+      callbackMainPinMouseUp,
+      callbackMainPinMouseMove
+  );
 })();

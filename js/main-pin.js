@@ -1,26 +1,14 @@
 'use strict';
 
 (function () {
-  var PIN_TAIL = 22;
-  var FILTER_FIELD_HEIGHT = 44;
-
-  var getMapSize = function () {
-    var mapElement = document.querySelector('.map')
-    .getBoundingClientRect();
-
-    return {
-      minX: mapElement.top,
-      maxX: mapElement.width,
-      minY: mapElement.left - (pinHeigth + PIN_TAIL),
-      maxY: mapElement.height - (pinHeigth + PIN_TAIL + FILTER_FIELD_HEIGHT)
-    };
-  };
+  var POSITION_LIMIT_TOP = 130;
+  var POSITION_LIMIT_BOTTOM = 630;
 
   var onMainPinMouseUp = function () {
     mainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
   };
 
-  var createMainPinMouseDownHanlder = function (callbackMouseUp) {
+  var createMainPinMouseDownHandler = function (callbackMouseUp, callbackMouseMove) {
     return function (mouseDownEvt) {
       mouseDownEvt.preventDefault();
 
@@ -45,14 +33,16 @@
         var y = mainPinElement.offsetTop - shiftCoords.y;
         var x = mainPinElement.offsetLeft - shiftCoords.x;
 
-        mainPinElement.style.top = Math.max(getMapSize().minY - pinHeigth / 2, Math.min(y, getMapSize().maxY)) + 'px';
-        mainPinElement.style.left = Math.max(getMapSize().minX, Math.min(x, getMapSize().maxX - pinWidth)) + 'px';
+        mainPinElement.style.top = Math.max(pinCoodsLimit.top, Math.min(y, pinCoodsLimit.bottom)) + 'px';
+        mainPinElement.style.left = Math.max(pinCoodsLimit.left, Math.min(x, pinCoodsLimit.rigth)) + 'px';
+
+        callbackMouseMove(window.mainPin.getPosition());
       };
 
       var onDocumentMouseUp = function (mouseUpEvt) {
         mouseUpEvt.preventDefault();
 
-        callbackMouseUp(window.mainPin.getPosition());
+        callbackMouseUp();
 
         document.removeEventListener('mousemove', onDocumentMouseMove);
         document.removeEventListener('mouseup', onDocumentMouseUp);
@@ -64,23 +54,26 @@
 
   var onMainPinMouseDown;
 
+  var pinCoodsLimit;
   var mainPinElement = document.querySelector('.map__pin--main');
   var imageMainPinElement = mainPinElement.querySelector('img');
-
   var pinWidth = imageMainPinElement.offsetWidth;
-  var pinHeigth = imageMainPinElement.offsetWidth;
 
   var defaultPositionX = parseInt(mainPinElement.offsetTop, 10);
   var defaultPositionY = parseInt(mainPinElement.offsetLeft, 10);
 
   window.mainPin = {
-    activate: function (callbackMouseUp) {
-      onMainPinMouseDown = createMainPinMouseDownHanlder(callbackMouseUp);
-      mainPinElement.addEventListener('mouseup', onMainPinMouseUp);
+    activate: function (mapWidth, callbackMouseUp, callbackMouseMove) {
+      pinCoodsLimit = {
+        top: POSITION_LIMIT_TOP,
+        bottom: POSITION_LIMIT_BOTTOM,
+        left: 0,
+        rigth: mapWidth - pinWidth
+      };
+      onMainPinMouseDown = createMainPinMouseDownHandler(callbackMouseUp, callbackMouseMove);
       mainPinElement.addEventListener('mousedown', onMainPinMouseDown);
     },
     deactivate: function () {
-      mainPinElement.removeEventListener('mouseup', onMainPinMouseUp);
       mainPinElement.removeEventListener('mousedown', onMainPinMouseDown);
     },
     getDefaultPosition: function () {
