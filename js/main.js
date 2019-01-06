@@ -57,15 +57,23 @@
 
   var isPageActive = false;
 
-  var callbackMainPinMouseUp = function (mainPinPosition) {
+  var callbackMainPinMouseUp = function () {
     if (!isPageActive) {
       activatePage();
     }
 
     isPageActive = true;
-    window.form.setAddressValue(mainPinPosition);
   };
 
+  var callbackMainPinMouseMove = function (mainPinPosition) {
+    window.form.setAddressValue(mainPinPosition);
+  };
+  var mapWidth = window.map.getWidth();
+
   deactivatePage();
-  window.mainPin.activate(callbackMainPinMouseUp);
+  window.mainPin.activate(
+      mapWidth,
+      callbackMainPinMouseUp,
+      callbackMainPinMouseMove
+  );
 })();
