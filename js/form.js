@@ -85,6 +85,10 @@
     evt.target.style.boxShadow = !(evt.target.checkValidity()) ? ERROR_FORM_STYLE : '';
   };
 
+  var onFormInvalid = function (evt) {
+    evt.target.style.boxShadow = ERROR_FORM_STYLE;
+  };
+
   var createFormSubmitHandler = function (callbackSubmit) {
     return function (evt) {
       callbackSubmit(new FormData(formElement));
@@ -112,12 +116,13 @@
       fieldCheckinElement.addEventListener('change', onChekinChange);
       fieldCheckoutElement.addEventListener('change', onCheckoutChange);
       fieldBuildingElement.addEventListener('change', onTypeMatchesPriceChange);
-      fieldTitleElement.addEventListener('invalid', onTextFieldInvalid);
       fieldRoomElement.addEventListener('change', onRoomSelectChange);
       fieldCapacityElement.addEventListener('change', onCapacitySelectChange);
 
       onFormSubmit = createFormSubmitHandler(callbackFormSubmit);
       onFormReset = createFormResetHandler(callbackFormReset);
+
+      formElement.addEventListener('invalid', onFormInvalid, true);
 
       formElement.addEventListener('change', onFormChange);
       formElement.addEventListener('submit', onFormSubmit);
@@ -139,9 +144,11 @@
       fieldRoomElement.removeEventListener('change', onRoomSelectChange);
       fieldCapacityElement.removeEventListener('change', onCapacitySelectChange);
 
+      formElement.removeEventListener('invalid', onFormInvalid, true);
+
       formElement.removeEventListener('change', onFormChange);
       formElement.removeEventListener('submit', onFormSubmit);
-      formElement.addEventListener('reset', onFormReset);
+      formElement.removeEventListener('reset', onFormReset);
     },
     setAddressValue: function (coords) {
       fieldAddressElement.setAttribute('value', coords);
