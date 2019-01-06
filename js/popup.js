@@ -24,6 +24,8 @@
     PLURAL: 'гостей'
   };
 
+  var POPUP_CLOSE_TAB_INDEX = '0';
+
   var POPUP_PHOTO_WIDTH = 45;
   var POPUP_PHOTO_HEIGHT = 40;
 
@@ -100,13 +102,13 @@
     return fragment;
   };
 
-  var createElement = function (data) {
+  var createPopupElement = function (data) {
     var offer = data.offer;
     var popupElement = templatePopupElement.cloneNode(true);
     var popupPhotosElement = popupElement.querySelector('.popup__photos');
     var popupFeaturesElement = popupElement.querySelector('.popup__features');
 
-    var offerPropertyDefinitions = [
+    var offerProperties = [
       {
         selector: '.popup__title',
         attribute: 'textContent',
@@ -149,14 +151,16 @@
       }
     ];
 
-    offerPropertyDefinitions.forEach(function (definition) {
-      var element = popupElement.querySelector(definition.selector);
-      if (element) {
-        if (definition.value) {
-          element[definition] = definition.value;
+    offerProperties.forEach(function (property) {
+      var element = popupElement.querySelector(property.selector);
+      if (element && property.value) {
+        if (property.attribute === 'textContent') {
+          element.textContent = property.value;
         } else {
-          element.classList.add('hidden');
+          element.setAttribute(property.attribute, property.value);
         }
+      } else {
+        element.classList.add('hidden');
       }
     });
 
@@ -185,10 +189,10 @@
       currentPopupElement.remove();
     }
 
-    var popupElement = createElement(offer);
+    var popupElement = createPopupElement(offer);
     var popupCloseElement = popupElement.querySelector('.popup__close');
 
-    popupCloseElement.setAttribute('tabIndex', '0');
+    popupCloseElement.setAttribute('tabIndex', POPUP_CLOSE_TAB_INDEX);
     popupCloseElement.addEventListener('click', onPopupCloseClick);
 
     mapElement.insertBefore(popupElement, mapFiltersElement);
