@@ -105,7 +105,7 @@
     return fragment;
   };
 
-  var createElement = function (data) {
+  var createPopupElement = function (data) {
     var offer = data.offer;
     var popupElement = templatePopupElement.cloneNode(true);
     var popupPhotosElement = popupElement.querySelector('.popup__photos');
@@ -188,7 +188,7 @@
       currentPopupElement.remove();
     }
 
-    var popupElement = createElement(offer);
+    var popupElement = createPopupElement(offer);
     var popupCloseElement = popupElement.querySelector('.popup__close');
 
     popupCloseElement.setAttribute(TabIndexPropertys.TAB_INDEX, TabIndexPropertys.VALUE);
