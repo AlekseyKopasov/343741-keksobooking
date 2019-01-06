@@ -17,6 +17,9 @@
     window.popup.close();
     window.mainPin.resetPosition();
     window.form.setAddressValue(window.mainPin.getDefaultPosition());
+
+    isPageActive = false;
+    window.mainPin.activate(callbackMainPinMouseUp);
   };
 
   var onFilter = function (filteredOffers) {
@@ -64,6 +67,6 @@
     window.form.setAddressValue(mainPinPosition);
   };
 
-  window.mainPin.activate(callbackMainPinMouseUp);
   deactivatePage();
+  window.mainPin.activate(callbackMainPinMouseUp);
 })();

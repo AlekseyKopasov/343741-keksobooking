@@ -24,10 +24,7 @@
     PLURAL: 'гостей'
   };
 
-  var TabIndexPropertys = {
-    TAB_INDEX: 'tabIndex',
-    VALUE: '0'
-  };
+  var POPUP_CLOSE_TAB_INDEX = '0';
 
   var POPUP_PHOTO_WIDTH = 45;
   var POPUP_PHOTO_HEIGHT = 40;
@@ -111,7 +108,7 @@
     var popupPhotosElement = popupElement.querySelector('.popup__photos');
     var popupFeaturesElement = popupElement.querySelector('.popup__features');
 
-    var offerPropertys = [
+    var offerProperties = [
       {
         selector: '.popup__title',
         attribute: 'textContent',
@@ -154,10 +151,14 @@
       }
     ];
 
-    offerPropertys.forEach(function (offerData) {
-      var element = popupElement.querySelector(offerData.selector);
-      if (element && offerData.value) {
-        element[offerData] = offerData.attribute === 'src' ? element.setAttribute(offerData.attribute, offerData.value) : element.textContent = offerData.value;
+    offerProperties.forEach(function (property) {
+      var element = popupElement.querySelector(property.selector);
+      if (element && property.value) {
+        if (property.attribute === 'textContent') {
+          element.textContent = property.value;
+        } else {
+          element.setAttribute(property.attribute, property.value);
+        }
       } else {
         element.classList.add('hidden');
       }
@@ -191,7 +192,7 @@
     var popupElement = createPopupElement(offer);
     var popupCloseElement = popupElement.querySelector('.popup__close');
 
-    popupCloseElement.setAttribute(TabIndexPropertys.TAB_INDEX, TabIndexPropertys.VALUE);
+    popupCloseElement.setAttribute('tabIndex', POPUP_CLOSE_TAB_INDEX);
     popupCloseElement.addEventListener('click', onPopupCloseClick);
 
     mapElement.insertBefore(popupElement, mapFiltersElement);
