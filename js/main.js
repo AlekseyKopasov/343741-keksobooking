@@ -19,7 +19,6 @@
     window.form.setAddressValue(window.mainPin.getDefaultPosition());
 
     isPageActive = false;
-    window.mainPin.activate(callbackMainPinMouseUp);
   };
 
   var onFilter = function (filteredOffers) {
