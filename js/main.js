@@ -21,15 +21,19 @@
     isPageActive = false;
   };
 
+  var onPinClick = function (offer) {
+    window.popup.open(offer);
+  };
+
   var onFilter = function (filteredOffers) {
     window.popup.close();
     window.pins.remove();
-    window.pins.create(filteredOffers);
+    window.pins.create(filteredOffers, onPinClick);
   };
 
   var onGetOffersSuccess = function (offers) {
     window.filter.activate(offers, onFilter);
-    window.pins.create(offers);
+    window.pins.create(offers, onPinClick);
   };
 
   var onGetOffersError = function () {

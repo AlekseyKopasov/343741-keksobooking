@@ -17,7 +17,7 @@
   var pinElements = [];
   var activePinElement;
 
-  var create = function (offers) {
+  var create = function (offers, onClick) {
     var fragment = document.createDocumentFragment();
 
     offers
@@ -33,7 +33,7 @@
           }
           element.classList.add('.map__pin--active');
           activePinElement = element;
-          window.popup.open(offer);
+          onClick(offer);
         });
         fragment.appendChild(element);
       });
