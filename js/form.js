@@ -51,7 +51,7 @@
   };
 
   var onTypeMatchesPriceChange = function (evt) {
-    var minPrice = TypeMinPrice[evt.target.value.toLowerCase()];
+    var minPrice = TypeMinPrice[evt.target.value.toUpperCase()];
     fieldPriceElement.min = minPrice;
     fieldPriceElement.placeholder = minPrice.toString();
   };
