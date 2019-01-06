@@ -15,6 +15,7 @@
   };
 
   var pinElements = [];
+  var activePinElement;
 
   var create = function (offers) {
     var fragment = document.createDocumentFragment();
@@ -27,6 +28,11 @@
         pinElements.push(element);
 
         element.addEventListener('click', function () {
+          if (activePinElement) {
+            activePinElement.classList.remove('.map__pin--active');
+          }
+          element.classList.add('.map__pin--active');
+          activePinElement = element;
           window.popup.open(offer);
         });
         fragment.appendChild(element);
@@ -36,6 +42,7 @@
   };
 
   var remove = function () {
+    activePinElement = null;
     pinElements.forEach(function (pinElement) {
       pinElement.remove();
     });

@@ -34,7 +34,7 @@
         var x = mainPinElement.offsetLeft - shiftCoords.x;
 
         mainPinElement.style.top = Math.max(pinCoodsLimit.top, Math.min(y, pinCoodsLimit.bottom)) + 'px';
-        mainPinElement.style.left = Math.max(pinCoodsLimit.left, Math.min(x, pinCoodsLimit.right)) + 'px';
+        mainPinElement.style.left = Math.max(pinCoodsLimit.left, Math.min(x, pinCoodsLimit.rigth)) + 'px';
 
         callbackMouseMove(window.mainPin.getPosition());
       };

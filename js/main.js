@@ -71,6 +71,7 @@
   var mapWidth = window.map.getWidth();
 
   deactivatePage();
+
   window.mainPin.activate(
       mapWidth,
       callbackMainPinMouseUp,
